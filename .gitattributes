@@ -1,0 +1,12 @@
+* text=auto
+
+core.eol=native
+core.autocrlf=true
+
+*.txt text
+*.gd text
+*.tscn text
+
+*.jpg binary
+*.so binary
+*.dll binary

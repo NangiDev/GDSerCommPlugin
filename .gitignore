@@ -3,6 +3,7 @@
 .import/
 export.cfg
 export_presets.cfg
+Screenshot.png.import
 
 # Mono-specific ignores
 .mono/

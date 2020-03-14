@@ -24,6 +24,7 @@ mkdir lib
 cp .\sercomm\build\Debug\sercomm.lib .\lib\
 cp .\sercomm\build\Debug\sercomm.dll .\lib\
 scons p=platform
+cp .\lib\sercomm.lib .\bin\
 ```
 * Now you should have your .dll in the GDSercomm/bin folder
 

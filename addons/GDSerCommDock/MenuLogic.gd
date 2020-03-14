@@ -40,7 +40,7 @@ func _on_RefreshButton_pressed():
 func _physics_process(delta):
 	if PORT != null && PORT.get_available()>0:
 		for i in range(PORT.get_available()):
-			readLabel.add_text(PORT.read())
+			readLabel.add_text(str(PORT.read()))
 
 func send_text():
 	#LineEdit does not recognize endline

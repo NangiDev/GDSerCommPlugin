@@ -44,6 +44,8 @@ mkdir lib
 cp sercomm/build/libsercomm.so lib/
 scons p=platform
 cp lib/libsercomm.so bin/
+cp bin/libsercomm.so /usr/lib
+ldconfig
 ```
 * Now you should have all your .so in the GDSercomm/bin folder
 

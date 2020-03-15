@@ -26,7 +26,26 @@ cp .\sercomm\build\Debug\sercomm.dll .\lib\
 scons p=platform
 cp .\lib\sercomm.lib .\bin\
 ```
-* Now you should have your .dll in the GDSercomm/bin folder
+* Now you should have all your .dll in the GDSercomm/bin folder
+
+### Ubuntu 18.04
+* In terminal run these commands
+```
+git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
+cd GDSercomm/
+git clone --depth=1 git@github.com:GodotNativeTools/godot_headers.git
+git clone --depth=1 git@github.com:ingeniamc/sercomm.git
+cd sercomm/
+cmake -H. -Bbuild
+cmake --build build
+cd ..
+cp sercomm/build/config.h sercomm/include/public/sercomm/
+mkdir lib
+cp sercomm/build/libsercomm.so lib/
+scons p=platform
+cp lib/libsercomm.so bin/
+```
+* Now you should have all your .so in the GDSercomm/bin folder
 
 ## Plugin
 

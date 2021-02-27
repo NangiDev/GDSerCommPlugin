@@ -23,7 +23,7 @@ cp .\sercomm\build\config.h .\sercomm\include\public\sercomm\
 mkdir lib
 cp .\sercomm\build\Debug\sercomm.lib .\lib\
 cp .\sercomm\build\Debug\sercomm.dll .\lib\
-scons p=platform
+scons p=windows
 cp .\lib\sercomm.lib .\bin\
 ```
 * Now you should have all your .dll in the GDSercomm/bin folder
@@ -42,12 +42,35 @@ cd ..
 cp sercomm/build/config.h sercomm/include/public/sercomm/
 mkdir lib
 cp sercomm/build/libsercomm.so lib/
-scons p=platform
+scons p=linux
 cp lib/libsercomm.so bin/
 cp bin/libsercomm.so /usr/lib
 ldconfig
 ```
 * Now you should have all your .so in the GDSercomm/bin folder
+
+
+### OSX
+* In terminal run these commands
+```
+git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
+cd GDSercomm/
+git clone --depth=1 git@github.com:GodotNativeTools/godot_headers.git
+git clone --depth=1 git@github.com:ingeniamc/sercomm.git
+cd sercomm/
+cmake -H. -Bbuild
+cmake --build build
+cd ..
+cp sercomm/build/config.h sercomm/include/public/sercomm/
+mkdir lib
+cp sercomm/build/libsercomm.so lib/
+scons p=osx
+cp lib/libsercomm.so bin/
+cp bin/libsercomm.so /usr/lib
+ldconfig
+```
+* Now you should have all your .dylib in the GDSercomm/bin folder
+* OBS! This is not tested because I don't own a OSX computer
 
 ## Plugin
 

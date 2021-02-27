@@ -51,6 +51,7 @@ ldconfig
 
 
 ### OSX
+* OBS! This is not tested because I don't own a OSX computer
 * In terminal run these commands
 ```
 git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
@@ -70,7 +71,6 @@ cp bin/libsercomm.so /usr/lib
 ldconfig
 ```
 * Now you should have all your .dylib in the GDSercomm/bin folder
-* OBS! This is not tested because I don't own a OSX computer
 
 ## Plugin
 

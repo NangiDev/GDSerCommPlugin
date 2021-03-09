@@ -53,6 +53,7 @@ ldconfig
 ### OSX
 * OBS! This is not tested because I don't own a OSX computer
 * In terminal run these commands
+
 ```
 git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
 cd GDSercomm/
@@ -64,11 +65,12 @@ cmake --build build
 cd ..
 cp sercomm/build/config.h sercomm/include/public/sercomm/
 mkdir lib
-cp sercomm/build/libsercomm.so lib/
+cp sercomm/build/libsercomm.dylib lib/
 scons p=osx
-cp lib/libsercomm.so bin/
-cp bin/libsercomm.so /usr/lib
-ldconfig
+cp lib/libsercomm.dylib bin/
+# it is not easy to get permissions to modify /usr/lib, might not be needed?
+cp bin/libsercomm.dylib /usr/lib
+sudo update_dyld_shared_cache
 ```
 * Now you should have all your .dylib in the GDSercomm/bin folder
 

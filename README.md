@@ -13,7 +13,7 @@ A Godot plugin to read Arduino serial input
 ```
 git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
 cd .\GDSercomm\
-git clone --depth=1 git@github.com:GodotNativeTools/godot_headers.git
+git clone --depth=1 -b 3.4 git@github.com:GodotNativeTools/godot_headers.git
 git clone --depth=1 git@github.com:ingeniamc/sercomm.git
 cd .\sercomm\
 cmake -S. -Bbuild
@@ -33,7 +33,7 @@ cp .\lib\sercomm.lib .\bin\
 ```
 git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
 cd GDSercomm/
-git clone --depth=1 git@github.com:GodotNativeTools/godot_headers.git
+git clone --depth=1 -b 3.4 git@github.com:GodotNativeTools/godot_headers.git
 git clone --depth=1 git@github.com:ingeniamc/sercomm.git
 cd sercomm/
 cmake -H. -Bbuild

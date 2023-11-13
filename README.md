@@ -1,84 +1,40 @@
+# This branch does not work yet!
+
 # GDSerCommPlugin
-A Godot plugin to read Arduino serial input
+A Godot 4.1.3+ plugin to read/write Arduino serial input. \
+Read
+[GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/index.html)
+for more
 
 # Dependencies
-* https://github.com/ingeniamc/sercomm
-* https://github.com/GodotNativeTools/godot_headers
-* https://github.com/Superwaitsum/GDSercomm
+* https://github.com/godotengine/godot/releases/tag/4.1.3-stable (Or newer)
+* https://sigrok.org/wiki/Libserialport
+* https://github.com/godotengine/godot-cpp
+
+# Build system
+* https://scons.org/
+* https://www.python.org/downloads/ (3.8+)
+
+# Repo structure
+demo - Demo to test the extension \
+deps - Dependencies
+godot-cpp - Godot bindings \
+src - Plugin source code \
 
 # Installation
 ## Build binaries
-### Windows 10 64-bit
-* In Powershell run these commands
+### Windows
 ```
-git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
-cd .\GDSercomm\
-git clone --depth=1 -b 3.4 git@github.com:GodotNativeTools/godot_headers.git
-git clone --depth=1 git@github.com:ingeniamc/sercomm.git
-cd .\sercomm\
-cmake -S. -Bbuild
-cmake --build build
-cd ..
-cp .\sercomm\build\config.h .\sercomm\include\public\sercomm\
-mkdir lib
-cp .\sercomm\build\Debug\sercomm.lib .\lib\
-cp .\sercomm\build\Debug\sercomm.dll .\lib\
-scons p=windows
-cp .\lib\sercomm.lib .\bin\
+python Install.py
 ```
-* Now you should have all your .dll in the GDSercomm/bin folder
 
-### Ubuntu 18.04
-* In terminal run these commands
+### Ubuntu
 ```
-git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
-cd GDSercomm/
-git clone --depth=1 -b 3.4 git@github.com:GodotNativeTools/godot_headers.git
-git clone --depth=1 git@github.com:ingeniamc/sercomm.git
-cd sercomm/
-cmake -H. -Bbuild
-cmake --build build
-cd ..
-cp sercomm/build/config.h sercomm/include/public/sercomm/
-mkdir lib
-cp sercomm/build/libsercomm.so lib/
-scons p=linux
-cp lib/libsercomm.so bin/
-cp bin/libsercomm.so /usr/lib
-ldconfig
+python Install.py
 ```
-* Now you should have all your .so in the GDSercomm/bin folder
-
-
 ### OSX
-* OBS! This is not tested because I don't own a OSX computer
-* In terminal run these commands
-
 ```
-git clone --depth=1 git@github.com:Superwaitsum/GDSercomm.git
-cd GDSercomm/
-git clone --depth=1 git@github.com:GodotNativeTools/godot_headers.git
-git clone --depth=1 git@github.com:ingeniamc/sercomm.git
-cd sercomm/
-cmake -H. -Bbuild
-cmake --build build
-cd ..
-cp sercomm/build/config.h sercomm/include/public/sercomm/
-mkdir lib
-cp sercomm/build/libsercomm.dylib lib/
-scons p=osx
-cp lib/libsercomm.dylib bin/
-# it is not easy to get permissions to modify /usr/lib, might not be needed?
-cp bin/libsercomm.dylib /usr/lib
-sudo update_dyld_shared_cache
+python Install.py
 ```
-* Now you should have all your .dylib in the GDSercomm/bin folder
 
 ## Plugin
-
-* Git clone repo into your addons folder in the root of your project.
-* Inside the editor got to Project->Projects Settings->Plugins and activate "Serial Communication"
-
-# Screenshot
-
-![Screenshot](Screenshot.png)

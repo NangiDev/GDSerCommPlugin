@@ -5,6 +5,9 @@ deps
 # scons
 *.dblite
 
+# binaries
+*.obj
+
 # Demo
 demo
 

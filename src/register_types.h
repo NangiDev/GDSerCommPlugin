@@ -1,7 +1,7 @@
-#ifndef GDEXAMPLE_REGISTER_TYPES_H
-#define GDEXAMPLE_REGISTER_TYPES_H
+#ifndef GDSERCOMM_REGISTER_TYPES_H
+#define GDSERCOMM_REGISTER_TYPES_H
 
-void initialize_example_module();
-void uninitialize_example_module();
+void initialize_sercomm_module();
+void uninitialize_sercomm_module();
 
-#endif // GDEXAMPLE_REGISTER_TYPES_H
+#endif // GDSERCOMM_REGISTER_TYPES_H

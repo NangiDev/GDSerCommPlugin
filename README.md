@@ -7,22 +7,21 @@ Read
 for more
 
 # Dependencies
-* https://github.com/godotengine/godot/releases/tag/4.1.3-stable (Or newer)
-* https://sigrok.org/wiki/Libserialport
-* https://github.com/godotengine/godot-cpp
+* [Godot 4.1 or above](https://github.com/godotengine/godot/releases/tag/4.1.3-stable)
+* [godot-cpp](https://github.com/godotengine/godot-cpp)
+* [libserialport](https://github.com/sigrokproject/libserialport)
 
 # Build system
-* https://scons.org/
-* https://www.python.org/downloads/ (3.8+)
+* [SCons](https://scons.org/)
+* [Python 3.8 or above](https://www.python.org/downloads/)
+* [Git](https://git-scm.com/)
 
 # Repo structure
-demo - Demo to test the extension \
-deps - Dependencies
-godot-cpp - Godot bindings \
-src - Plugin source code \
+    src - Plugin source code
+    deps - Dependencies, like libserialport. Will be created on install\
+    godot-cpp - Godot bindings. Will be created on install\
 
 # Installation
-## Build binaries
 ### Windows
 ```
 python Install.py

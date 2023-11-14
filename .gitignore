@@ -13,3 +13,6 @@ demo
 
 # Jetbrains
 .idea
+
+# Python venv stuff
+pvenv

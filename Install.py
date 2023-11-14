@@ -16,6 +16,8 @@ if MajorIsLower or MajorIsGreaterButMinorIsLower:
 from subprocess import Popen
 from os import path, mkdir
 from venv import create
+from platform import system
+from shutil import copyfile
 
 RootPath = path.dirname(__file__)
 
@@ -63,9 +65,18 @@ process.wait()
 ThreadCount = "16"
 Target = "template_release"
 Target = "template_debug"
-Platform = "macos"
-Platform = "linux"
+
 Platform = "windows"
+match system():
+    case 'Linux':
+        Platform = "linux"
+    case 'Darwin':
+        Platform = "macos"
+    case 'Windows':
+        Platform = "windows"
+    case other:
+        print("Unsupported platform: {}".format(system()))
+        exit(1)
 
 # Python venv Scons executables
 SconsExec = "{}/Scripts/scons".format(VEnvDir)
@@ -91,3 +102,10 @@ process.wait()
 if (process.returncode != 0):
     print("Compiling our plugin failed!")
     exit(1)
+
+# Copy gdsercomm.gdextension file to demo project
+GdExtTemplFileName = "gdsercomm.gdextension.template"
+GdExtTemplFilePath = "{}/src/{}".format(RootPath, GdExtTemplFileName)
+GdExtFileName = "gdsercomm.gdextension"
+GdExtFilePath = "{}/demo/{}".format(RootPath, GdExtFileName)
+copyfile(GdExtTemplFilePath, GdExtFilePath)

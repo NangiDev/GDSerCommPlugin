@@ -84,8 +84,6 @@ if not path.exists("{}/bin".format(GodotCppPath)):
 else:
     print("godot-cpp already compiled")
 
-exit()
-
 # Compile our plugin
 process = Popen(SconsCommand, shell=True, cwd=RootPath)
 process.wait()

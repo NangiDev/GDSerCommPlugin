@@ -1,6 +1,7 @@
 #include "register_types.h"
 
-#include "gdsercomm.h"
+#include "ser_comm.h"
+#include "custom_serial_port_event.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -16,7 +17,8 @@ void initialize_sercomm_module(ModuleInitializationLevel p_level)
         return;
     }
 
-    ClassDB::register_class<GDSerComm>();
+    ClassDB::register_class<SerComm>();
+	ClassDB::register_class<CustomSerialPortEvent>();
 }
 
 void uninitialize_sercomm_module(ModuleInitializationLevel p_level)

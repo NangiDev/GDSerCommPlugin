@@ -1,6 +1,6 @@
 # This branch does not work yet!
 
-# GDSerCommPlugin
+# SerCommPlugin
 A Godot 4.1.3+ plugin to read/write Arduino serial input. \
 Read
 [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/index.html)

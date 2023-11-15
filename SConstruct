@@ -18,14 +18,14 @@ sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":
     library = env.SharedLibrary(
-        "demo/bin/libgdsercomm.{}.{}.framework/libgdsercomm.{}.{}".format(
+        "demo/bin/libsercomm.{}.{}.framework/libsercomm.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
     )
 else:
     library = env.SharedLibrary(
-        "demo/bin/libgdsercomm{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        "demo/bin/libsercomm{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
     )
 

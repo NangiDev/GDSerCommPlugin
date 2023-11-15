@@ -22,6 +22,7 @@ from shutil import copyfile
 RootPath = path.dirname(__file__)
 
 # Git Clone godot-cpp
+print("\n===== Cloning godot-cpp =====")
 if not path.exists("{}/godot-cpp".format(RootPath)):
     GodotVersion = "4.1"
     process = Popen("git clone -b {} https://github.com/godotengine/godot-cpp".format(GodotVersion), shell=True, cwd=RootPath)
@@ -30,11 +31,12 @@ else:
     print("godot-cpp already cloned")
 
 # Git Clone libserialport
+print("\n===== Cloning libserialport =====")
 DependenciesPath = "{}/deps".format(RootPath)
 try:
     mkdir(DependenciesPath)
 except FileExistsError as e:
-    print("{} already exists.".format(DependenciesPath))
+    pass
 if not path.exists("{}/libserialport".format(DependenciesPath)):
     process = Popen("git clone https://github.com/sigrokproject/libserialport.git", shell=True, cwd=DependenciesPath)
     process.wait()
@@ -42,6 +44,7 @@ else:
     print("libserialport already cloned")
 
 #Create python environment
+print("\n===== Creating Python virtual environment =====")
 VEnvDir = "{}/pvenv".format(RootPath)
 if not path.exists(VEnvDir):
     print("Creating Python virtual environment. Path: {}".format(VEnvDir))
@@ -54,10 +57,12 @@ PythonExec = "{}/Scripts/python".format(VEnvDir)
 PipExec = "{}/Scripts/pip".format(VEnvDir)
 
 # Update pip
+print("\n===== Updating pip =====")
 process = Popen("{} -m pip install --upgrade pip".format(PythonExec), shell=True, cwd=RootPath)
 process.wait()
 
 # Install SCons through pip
+print("\n===== Installing Python requirements =====")
 process = Popen("{} install -r requirements.txt".format(PipExec), shell=True, cwd=RootPath)
 process.wait()
 
@@ -83,6 +88,7 @@ SconsExec = "{}/Scripts/scons".format(VEnvDir)
 SconsCommand = "{} platform={} target={} -j{}".format(SconsExec, Platform, Target, ThreadCount)
 
 # Compile Godot bindings
+print("\n===== Compile Godot bindings =====")
 GodotCppPath = "{}/godot-cpp".format(RootPath)
 if not path.exists("{}/bin".format(GodotCppPath)):
     CustomApiFilePath = "{}/gdextension/extension_api.json".format(GodotCppPath)
@@ -95,17 +101,19 @@ if not path.exists("{}/bin".format(GodotCppPath)):
 else:
     print("godot-cpp already compiled")
 
-# Compile our plugin
+# Compile sercomm plugin
+print("\n===== Compile sercomm plugin =====")
 process = Popen(SconsCommand, shell=True, cwd=RootPath)
 process.wait()
 
 if (process.returncode != 0):
-    print("Compiling our plugin failed!")
+    print("Compiling sercomm plugin failed!")
     exit(1)
 
-# Copy gdsercomm.gdextension file to demo project
-GdExtTemplFileName = "gdsercomm.gdextension.template"
-GdExtTemplFilePath = "{}/src/{}".format(RootPath, GdExtTemplFileName)
-GdExtFileName = "gdsercomm.gdextension"
-GdExtFilePath = "{}/demo/{}".format(RootPath, GdExtFileName)
+# Copy sercomm.gdextension file to demo project
+print("\n===== Copy gdextension tempplate to demo directory =====")
+GdExtTemplFileName = "sercomm.gdextension.template"
+GdExtTemplFilePath = "{}/src/template/{}".format(RootPath, GdExtTemplFileName)
+GdExtFileName = "sercomm.gdextension"
+GdExtFilePath = "{}/demo/bin/{}".format(RootPath, GdExtFileName)
 copyfile(GdExtTemplFilePath, GdExtFilePath)

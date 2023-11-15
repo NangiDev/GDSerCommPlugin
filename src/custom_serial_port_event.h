@@ -5,12 +5,14 @@
 
 using namespace godot;
 
-class CustomSerialPortEvent : public RefCounted {
+class CustomSerialPortEvent : public RefCounted
+{
     GDCLASS(CustomSerialPortEvent, RefCounted);
 
 public:
-	CustomSerialPortEvent();
-	~CustomSerialPortEvent();
+    CustomSerialPortEvent();
+    CustomSerialPortEvent(String p_Message) { m_Message = p_Message; };
+    ~CustomSerialPortEvent();
 
     String CustomSerialPortEvent::_to_string() const;
 

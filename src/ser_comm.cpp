@@ -14,6 +14,7 @@ void SerComm::_bind_methods()
 	ClassDB::add_property("SerComm", PropertyInfo(Variant::FLOAT, "speed", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_speed", "get_speed");
 
 	ADD_SIGNAL(MethodInfo("position_changed", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::VECTOR2, "new_pos")));
+	ADD_SIGNAL(MethodInfo("serial_event_received", PropertyInfo(Variant::OBJECT, "event")));
 }
 
 SerComm::SerComm()
@@ -36,15 +37,17 @@ void SerComm::_process(double delta)
 
 	Vector2 new_position = Vector2(
 		amplitude + (amplitude * sin(time_passed * 2.0)),
-		amplitude + (amplitude * cos(time_passed * 1.5))
-	);
+		amplitude + (amplitude * cos(time_passed * 1.5)));
 
 	set_position(new_position);
 
 	time_emit += delta;
 	if (time_emit > 1.0)
 	{
+		Ref<CustomSerialPortEvent> event = memnew(CustomSerialPortEvent("This just in!"));
+		emit_signal("serial_event_received", event);
 		emit_signal("position_changed", this, new_position);
+
 		time_emit = 0.0;
 	}
 }

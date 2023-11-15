@@ -1,6 +1,6 @@
 # Dependencies
-godot-cpp/
-deps/
+godot-cpp
+deps
 
 # scons
 *.dblite
@@ -13,8 +13,9 @@ demo
 
 # Jetbrains
 .idea
-# VSCode
+# VS/VSCode
 .vs
+.vscode
 
 # Python venv stuff
 pvenv/

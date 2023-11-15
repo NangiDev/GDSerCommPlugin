@@ -18,7 +18,6 @@ namespace godot
 
 	protected:
 		static void _bind_methods();
-		virtual void _serial(const godot::Ref<CustomSerialPortEvent>& event) {};
 
 	public:
 		SerComm();

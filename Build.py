@@ -38,7 +38,13 @@ match system():
 
 # Python venv Scons executables
 VEnvDir = "{}/pvenv".format(RootPath)
-SconsExec = "{}/Scripts/scons".format(VEnvDir)
+
+# On Linux the folder is called bin and on Windows it's called Scripts
+VEnvDirBin = "{}/bin".format(VEnvDir)
+if not path.exists(VEnvDirBin):
+    VEnvDirBin = "{}/Scripts".format(VEnvDir)
+
+SconsExec = "{}/scons".format(VEnvDirBin)
 SconsCommand = "{} platform={} target={} -j{}".format(SconsExec, Platform, Target, ThreadCount)
 
 # Compile sercomm plugin

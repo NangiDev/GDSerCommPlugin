@@ -1,7 +1,7 @@
 # This branch does not work yet!
 
 # SerCommPlugin
-A Godot 4.1.3+ plugin to read/write Arduino serial input. \
+A Godot 4.1+ plugin to read/write Arduino serial input.\
 Read
 [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/index.html)
 for more
@@ -29,6 +29,8 @@ python Install.py
 
 ### Ubuntu
 ```
+apt install python3
+apt install python3.10-venv
 python Install.py
 ```
 ### OSX
@@ -36,4 +38,17 @@ python Install.py
 python Install.py
 ```
 
-## Plugin
+# Build
+### Windows
+```
+python Build.py
+```
+
+### Ubuntu
+```
+python Build.py
+```
+### OSX
+```
+python Build.py
+```

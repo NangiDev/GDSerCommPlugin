@@ -1,57 +1,40 @@
-from sys import version_info
-
-ExpectedMajorVersion = 3
-ExpectedMinorVersion = 8
-CurrentMajorVersion = version_info.major
-CurrentMinorVersion = version_info.minor
-
-MajorIsLower = CurrentMajorVersion < ExpectedMajorVersion
-MajorIsGreaterButMinorIsLower = not MajorIsLower and CurrentMinorVersion < ExpectedMinorVersion
-
-if MajorIsLower or MajorIsGreaterButMinorIsLower:
-    print("    Python {}.{} or higher is required.".format(ExpectedMajorVersion, ExpectedMinorVersion))
-    print("    You are using Python {}.{}.".format(CurrentMajorVersion, CurrentMinorVersion))
-    exit(1)
-
+from Shared import Loc, GetLoc, IsValidPythonVersion
 from subprocess import Popen
-from os import path
 from platform import system
 
-RootPath = path.dirname(__file__)
+IsValidPythonVersion()
+
+def GetPlatform():
+    match system():
+        case 'Linux':
+            return "linux"
+        case 'Darwin':
+            return "macos"
+        case 'Windows':
+            return "windows"
+        case other:
+            print("Unsupported platform: {}".format(system()))
+            exit(1)
 
 # Scons arguments
 ThreadCount = "16"
 Target = "template_release"
 Target = "template_debug"
+Platform = GetPlatform()
 
-Platform = "windows"
-match system():
-    case 'Linux':
-        Platform = "linux"
-    case 'Darwin':
-        Platform = "macos"
-    case 'Windows':
-        Platform = "windows"
-    case other:
-        print("Unsupported platform: {}".format(system()))
+#Scons command
+SconsCommand = f"{GetLoc(Loc.scons)} platform={Platform} target={Target} -j{ThreadCount}"
+
+def Compile(WorkingDir, CustomApiFilePath = None, Message = "Compile plugin"):
+    print(f"\n===== {Message} =====")
+
+    cmd = SconsCommand + (f" custom_api_file={CustomApiFilePath}" if CustomApiFilePath else "")
+    process = Popen(cmd, shell=True, cwd=WorkingDir)
+    process.wait()
+
+    if (process.returncode != 0):
+        print("Compiling failed!")
         exit(1)
 
-# Python venv Scons executables
-VEnvDir = "{}/pvenv".format(RootPath)
-
-# On Linux the folder is called bin and on Windows it's called Scripts
-VEnvDirBin = "{}/bin".format(VEnvDir)
-if not path.exists(VEnvDirBin):
-    VEnvDirBin = "{}/Scripts".format(VEnvDir)
-
-SconsExec = "{}/scons".format(VEnvDirBin)
-SconsCommand = "{} platform={} target={} -j{}".format(SconsExec, Platform, Target, ThreadCount)
-
-# Compile sercomm plugin
-print("\n===== Compile sercomm plugin =====")
-process = Popen(SconsCommand, shell=True, cwd=RootPath)
-process.wait()
-
-if (process.returncode != 0):
-    print("Compiling sercomm plugin failed!")
-    exit(1)
+if __name__ == "__main__":
+    Compile(GetLoc(Loc.root))

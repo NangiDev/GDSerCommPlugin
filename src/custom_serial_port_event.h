@@ -14,7 +14,7 @@ public:
     CustomSerialPortEvent(String p_Message) { m_Message = p_Message; };
     ~CustomSerialPortEvent();
 
-    String CustomSerialPortEvent::_to_string() const;
+    String _to_string() const;
 
 protected:
     static void _bind_methods();

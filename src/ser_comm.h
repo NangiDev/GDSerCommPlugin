@@ -55,6 +55,13 @@ namespace godot
 
 		void _process(double delta) override;
 
+		void send_serial_event(const Ref<CustomSerialPortEvent> &p_event)
+		{
+			String test = "Messag from inside: ";
+			String message = test + p_event->_to_string();
+			_err_print_error(__FUNCTION__, __FILE__, __LINE__, message);
+		};
+
 		void set_baud_rate(const int p_baud_rate);
 		int get_baud_rate() const;
 	};

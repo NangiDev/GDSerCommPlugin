@@ -15,6 +15,7 @@ demo
 
 # Cmake
 CMakeLists.txt
+build
 
 # Jetbrains
 .idea

@@ -53,8 +53,14 @@ else:
     print("Python virtual environment already exists. Path: {}".format(VEnvDir))
 
 # Python venv executables
-PythonExec = "{}/Scripts/python".format(VEnvDir)
-PipExec = "{}/Scripts/pip".format(VEnvDir)
+
+# On Linux the folder is called bin and on Windows it's called Scripts
+VEnvDirBin = "{}/bin".format(VEnvDir)
+if not path.exists(VEnvDirBin):
+    VEnvDirBin = "{}/Scripts".format(VEnvDir)
+
+PythonExec = "{}/python".format(VEnvDirBin)
+PipExec = "{}/pip".format(VEnvDirBin)
 
 # Update pip
 print("\n===== Updating pip =====")
@@ -84,7 +90,7 @@ match system():
         exit(1)
 
 # Python venv Scons executables
-SconsExec = "{}/Scripts/scons".format(VEnvDir)
+SconsExec = "{}/scons".format(VEnvDirBin)
 SconsCommand = "{} platform={} target={} -j{}".format(SconsExec, Platform, Target, ThreadCount)
 
 # Compile Godot bindings

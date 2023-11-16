@@ -5,25 +5,19 @@ using namespace godot;
 
 void SerComm::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("get_amplitude"), &SerComm::get_amplitude);
-	ClassDB::bind_method(D_METHOD("set_amplitude", "p_amplitude"), &SerComm::set_amplitude);
-	ClassDB::add_property("SerComm", PropertyInfo(Variant::FLOAT, "amplitude"), "set_amplitude", "get_amplitude");
+	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
+	ClassDB::bind_method(D_METHOD("set_baud_rate", "p_baud_rate"), &SerComm::set_baud_rate);
 
-	ClassDB::bind_method(D_METHOD("get_speed"), &SerComm::get_speed);
-	ClassDB::bind_method(D_METHOD("set_speed", "p_speed"), &SerComm::set_speed);
-	ClassDB::add_property("SerComm", PropertyInfo(Variant::FLOAT, "speed", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_speed", "get_speed");
+	// String hint_string = "110:110, 300:300, 600:600, 1200:1200, 2400:2400, 4800:4800, 9600:9600, 14400:14400, 19200:19200, 38400:38400, 57600:57600, 115200:115200, 128000:128000, 256000:256000";
+	ClassDB::add_property("SerComm", PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, baudRateToHintString()), "set_baud_rate", "get_baud_rate");
 
-	ADD_SIGNAL(MethodInfo("position_changed", PropertyInfo(Variant::OBJECT, "node"), PropertyInfo(Variant::VECTOR2, "new_pos")));
 	ADD_SIGNAL(MethodInfo("serial_event_received", PropertyInfo(Variant::OBJECT, "event")));
 }
 
 SerComm::SerComm()
 {
 	// Initialize any variables here.
-	time_passed = 0.0;
-	time_emit = 0.0;
-	amplitude = 10.0;
-	speed = 1.0;
+	baud_rate = BAUD_9600;
 }
 
 SerComm::~SerComm()
@@ -33,41 +27,17 @@ SerComm::~SerComm()
 
 void SerComm::_process(double delta)
 {
-	time_passed += speed * delta;
-
-	Vector2 new_position = Vector2(
-		amplitude + (amplitude * sin(time_passed * 2.0)),
-		amplitude + (amplitude * cos(time_passed * 1.5)));
-
-	set_position(new_position);
-
-	time_emit += delta;
-	if (time_emit > 1.0)
-	{
-		Ref<CustomSerialPortEvent> event = memnew(CustomSerialPortEvent("This just in!"));
-		emit_signal("serial_event_received", event);
-		emit_signal("position_changed", this, new_position);
-
-		time_emit = 0.0;
-	}
+	std::string message = "This just in: " + std::to_string(baud_rate);
+	Ref<CustomSerialPortEvent> event = memnew(CustomSerialPortEvent(message.c_str()));
+	emit_signal("serial_event_received", event);
 }
 
-void SerComm::set_amplitude(const double p_amplitude)
+void SerComm::set_baud_rate(const int p_baudrate)
 {
-	amplitude = p_amplitude;
+	baud_rate = p_baudrate;
 }
 
-double SerComm::get_amplitude() const
+int SerComm::get_baud_rate() const
 {
-	return amplitude;
-}
-
-void SerComm::set_speed(const double p_speed)
-{
-	speed = p_speed;
-}
-
-double SerComm::get_speed() const
-{
-	return speed;
+	return baud_rate;
 }

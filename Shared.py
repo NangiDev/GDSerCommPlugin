@@ -25,6 +25,7 @@ PvenvPath = path.join(RootPath, "pvenv")
 GodotCppPath = path.join(RootPath, "godot-cpp")
 DepsPath = path.join(RootPath, "deps")
 LibSerPath = path.join(DepsPath, "libserialport")
+GTestPath = path.join(DepsPath, "googletest")
 BinPath = path.join(PvenvPath, NameOfBinFile())
 
 class Loc(Enum):
@@ -37,6 +38,7 @@ class Loc(Enum):
     scons = 7
     python = 8
     pip = 9
+    gtest = 10
 
 LocDict = {
   Loc.root:             RootPath,
@@ -44,6 +46,7 @@ LocDict = {
   Loc.godotcpp:         GodotCppPath,
   Loc.deps:             DepsPath,
   Loc.libserialport:    LibSerPath,
+  Loc.gtest:            GTestPath,
   Loc.bin:              BinPath,
   Loc.scons:            path.join(BinPath, "scons"),
   Loc.python:           path.join(BinPath, "python"),

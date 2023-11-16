@@ -31,7 +31,7 @@ if not PathExists:
     process.wait()
 else:
     print("libserialport already cloned")
-
+    
 #Create python environment
 print("\n===== Creating Python virtual environment =====")
 (VEnvDir, PathExists) = TryGetLoc(Loc.pvenv)

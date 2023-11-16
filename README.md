@@ -16,6 +16,17 @@ for more
 * [Python 3.8 or above](https://www.python.org/downloads/)
 * [Git](https://git-scm.com/)
 
+## Compilation Database and/or CMake
+ **Experimental feature**\
+The Scons build will generate a Compilation Database (CD). CLion can open a CD directly\
+You can also run the generate_cmake.py script to generate a CMakeLists.txt.
+```
+mkdir build
+cd build
+cmake .. 
+make
+```
+
 # Repo structure
     src - Plugin source code
     deps - Dependencies, like libserialport. Will be created on install\

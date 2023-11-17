@@ -1,11 +1,27 @@
+'''
+Generate a CMakeLists from the compilation database if it exists.
+'''
+
 import json
 
-def generate_cmake_lists(compilation_database_path):
-    with open(compilation_database_path, 'r') as f:
-        compilation_database = json.load(f)
 
-    cmake_lists_content = "cmake_minimum_required(VERSION 3.5)\n\n"
-    cmake_lists_content += "project(YourProjectName)\n\n"
+def generate_cmake_lists(db_path):
+    '''
+    Will return a CMakeLists file containing the data from compilation database
+
+    Parameters:
+    db_path (string): Path to the compilation_database.json file
+
+    Returns:
+    string: Content of the compilation db in CMakeLists style
+    '''
+    with open(db_path, 'r', encoding="utf-8") as f:
+        compilation_database = json.load(f)
+        f.close()
+
+    project_name = "sercomm"
+    content = "cmake_minimum_required(VERSION 3.5)\n\n"
+    content += f"project({project_name})\n\n"
 
     source_files = set()
 
@@ -13,22 +29,32 @@ def generate_cmake_lists(compilation_database_path):
         source_file = entry['file']
         source_files.add(source_file)
 
-    cmake_lists_content += "add_executable(YourExecutableName\n"
+    content += f"add_executable({project_name}\n"
     for source_file in source_files:
-        cmake_lists_content += "    " + source_file + "\n"
-    cmake_lists_content += ")\n"
+        content += "    " + source_file + "\n"
+    content += ")\n"
 
-    return cmake_lists_content
+    return content
 
-def save_cmake_lists(cmake_lists_content, output_file_path):
-    with open(output_file_path, 'w') as f:
-        f.write(cmake_lists_content)
+
+def save_cmake_lists(content, out_path):
+    '''
+    Will write the given content to given output path.
+
+    Parameters:
+    content (string): Content to be written
+    out_path (string): Path to where to write the file
+    '''
+    with open(out_path, 'w', encoding="utf-8") as f:
+        f.write(content)
+        f.close()
+
 
 if __name__ == "__main__":
-    compilation_database_path = "compile_commands.json"
-    output_file_path = "CMakeLists.txt"
+    COMPILATION_DATABASE_PATH = "compile_commands.json"
+    OUTPUT_FILE_PATH = "CMakeLists.txt"
 
-    cmake_lists_content = generate_cmake_lists(compilation_database_path)
-    save_cmake_lists(cmake_lists_content, output_file_path)
+    cmake_lists_content = generate_cmake_lists(COMPILATION_DATABASE_PATH)
+    save_cmake_lists(cmake_lists_content, OUTPUT_FILE_PATH)
 
-    print(f"CMakeLists.txt generated successfully at {output_file_path}")
+    print(f"CMakeLists.txt generated successfully at {OUTPUT_FILE_PATH}")

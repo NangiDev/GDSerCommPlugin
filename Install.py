@@ -1,72 +1,84 @@
-from Shared import IsValidPythonVersion, TryGetLoc, GetLoc, Loc
-from Build import GetPlatform, SconsCommand, Compile
-from subprocess import Popen
-from os import mkdir, path
-from venv import create
-from platform import system
-from shutil import copyfile
+'''
+Install script.
+'''
 
-IsValidPythonVersion()
+from subprocess import Popen
+from os import mkdir
+from venv import create
+from shutil import copyfile
+from shared_lib import is_valid_python_version, try_get_loc, get_loc, Loc
+from build import scons_compile
+
+is_valid_python_version()
 
 # Git Clone godot-cpp
 print("\n===== Cloning godot-cpp =====")
-(_, PathExists) = TryGetLoc(Loc.godotcpp)
-if not PathExists:
-    GodotVersion = "4.1"
-    process = Popen(f"git clone -b {GodotVersion} https://github.com/godotengine/godot-cpp", shell=True, cwd=GetLoc(Loc.root))
-    process.wait()
+(_, path_exists) = try_get_loc(Loc.GODOTCPP)
+if not path_exists:
+    GODOT_VER = "4.1"
+    GODOT_REPO = "https://github.com/godotengine/godot-cpp"
+    CMD = f"git clone -b {GODOT_VER} {GODOT_REPO}"
+    with Popen(CMD, shell=True, cwd=get_loc(Loc.ROOT)) as process:
+        process.wait()
 else:
     print("godot-cpp already cloned")
 
 # Create deps directory if its missing
-(DepsPath, PathExists) = TryGetLoc(Loc.deps)
-try: mkdir(DepsPath)
-except FileExistsError as e: pass
+(deps_path, path_exists) = try_get_loc(Loc.DEPS)
+try:
+    mkdir(deps_path)
+except FileExistsError as e:
+    pass
 
-print("\n===== Cloning libserialport =====")
 # Git Clone libserialport
-(_, PathExists) = TryGetLoc(Loc.libserialport)
-if not PathExists:
-    process = Popen("git clone https://github.com/sigrokproject/libserialport.git", shell=True, cwd=DepsPath)
-    process.wait()
+print("\n===== Cloning libserialport =====")
+(_, path_exists) = try_get_loc(Loc.LIBSERIALPORT)
+if not path_exists:
+    LIBSER_REPO = "https://github.com/sigrokproject/libserialport.git"
+    CMD = f"git clone {LIBSER_REPO}"
+    with Popen(CMD, shell=True, cwd=deps_path) as process:
+        process.wait()
 else:
     print("libserialport already cloned")
-    
-#Create python environment
+
+# Create python environment
 print("\n===== Creating Python virtual environment =====")
-(VEnvDir, PathExists) = TryGetLoc(Loc.pvenv)
-if not PathExists:
-    print(f"Creating Python virtual environment. Path: {VEnvDir}")
-    create(VEnvDir, with_pip=True)
+(v_env_dir, path_exists) = try_get_loc(Loc.PVENV)
+if not path_exists:
+    print(f"Creating Python virtual environment. Path: {v_env_dir}")
+    create(v_env_dir, with_pip=True)
 else:
-    print(f"Python virtual environment already exists. Path: {VEnvDir}")
+    print(f"Python virtual environment already exists. Path: {v_env_dir}")
 
 # Update pip
 print("\n===== Updating pip =====")
-process = Popen(f"{GetLoc(Loc.python)} -m pip install --upgrade pip", shell=True, cwd=GetLoc(Loc.root))
-process.wait()
+CMD = f"{get_loc(Loc.PYTHON)} -m pip install --upgrade pip"
+with Popen(CMD,  shell=True, cwd=get_loc(Loc.ROOT)) as process:
+    process.wait()
 
 # Install SCons through pip
 print("\n===== Installing Python requirements =====")
-process = Popen(f"{GetLoc(Loc.pip)} install -r requirements.txt", shell=True, cwd=GetLoc(Loc.root))
-process.wait()
+CMD = f"{get_loc(Loc.PIP)} install -r requirements.txt"
+with Popen(CMD, shell=True, cwd=get_loc(Loc.ROOT)) as process:
+    process.wait()
 
 # Compile Godot bindings
-(GodotCppPath, PathExists) = TryGetLoc(Loc.godotcpp)
-if not PathExists:
-    CustomApiFilePath = f"{GodotCppPath}/gdextension/extension_api.json"
-    Compile(GodotCppPath, CustomApiFilePath, "Compile Godot bindings")
+(godot_cpp_path, path_exists) = try_get_loc(Loc.GODOTCPP)
+MESSAGE = "Compile Godot bindings"
+if not path_exists:
+    custom_api_file_path = f"{godot_cpp_path}/gdextension/extension_api.json"
+    scons_compile(godot_cpp_path, custom_api_file_path, MESSAGE)
 else:
-    print("\n===== Compile Godot bindings =====")
+    print(f"\n===== {MESSAGE} =====")
     print("godot-cpp already compiled")
 
 # Compile sercomm plugin
-Compile(GetLoc(Loc.root), Message="Compile Sercom")
+scons_compile(get_loc(Loc.ROOT), message="Compile Sercom")
 
 # Copy sercomm.gdextension file to demo project
 print("\n===== Copy gdextension tempplate to demo directory =====")
-GdExtTemplFileName = "sercomm.gdextension.template"
-GdExtTemplFilePath = f"{GetLoc(Loc.root)}/src/template/{GdExtTemplFileName}"
-GdExtFileName = "sercomm.gdextension"
-GdExtFilePath = f"{GetLoc(Loc.root)}/demo/bin/{GdExtFileName}"
-copyfile(GdExtTemplFilePath, GdExtFilePath)
+GDEXTTEMPLFILENAME = "sercomm.gdextension.template"
+GDEXTTEMPLFILEPATH = f"{get_loc(Loc.ROOT)}/src/template/{GDEXTTEMPLFILENAME}"
+GDEXTFILENAME = "sercomm.gdextension"
+GDEXTFILEPATH = f"{get_loc(Loc.ROOT)}/demo/bin/{GDEXTFILENAME}"
+copyfile(GDEXTTEMPLFILEPATH, GDEXTFILEPATH)

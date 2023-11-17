@@ -9,8 +9,8 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "p_baud_rate"), &SerComm::set_baud_rate);
 	ClassDB::add_property("SerComm", PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, baudRateToHintString()), "set_baud_rate", "get_baud_rate");
 
-	ClassDB::bind_method(D_METHOD("send_serial_event", "p_event"), &SerComm::send_serial_event);
-	ADD_SIGNAL(MethodInfo("serial_event_received", PropertyInfo(Variant::OBJECT, "event")));
+	ClassDB::bind_method(D_METHOD("write_serial_event", "p_event"), &SerComm::write_serial_event);
+	ADD_SIGNAL(MethodInfo("read_serial_event", PropertyInfo(Variant::OBJECT, "event")));
 }
 
 SerComm::SerComm()
@@ -27,9 +27,16 @@ SerComm::~SerComm()
 void SerComm::_process(double delta)
 {
 	std::string message = "This just in: " + std::to_string(baud_rate);
-	Ref<CustomSerialPortEvent> event = memnew(CustomSerialPortEvent(message.c_str()));
-	emit_signal("serial_event_received", event);
+	Ref<SerialEvent> event = memnew(SerialEvent(message));
+	emit_signal("read_serial_event", event);
 }
+
+void godot::SerComm::write_serial_event(const Ref<SerialEvent> &p_event)
+{
+	String test = "Messag from inside: ";
+	String message = test + p_event->_to_string();
+	_err_print_error(__FUNCTION__, __FILE__, __LINE__, message);
+};
 
 void SerComm::set_baud_rate(const int p_baudrate)
 {

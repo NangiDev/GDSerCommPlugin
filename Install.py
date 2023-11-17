@@ -7,7 +7,7 @@ from os import mkdir
 from venv import create
 from shutil import copyfile
 from shared_lib import is_valid_python_version, try_get_loc, get_loc, Loc
-from build import scons_compile
+from build import scons_compile, get_platform
 
 is_valid_python_version()
 
@@ -60,6 +60,16 @@ with Popen(CMD,  shell=True, cwd=get_loc(Loc.ROOT)) as process:
 print("\n===== Installing Python requirements =====")
 CMD = f"{get_loc(Loc.PIP)} install -r requirements.txt"
 with Popen(CMD, shell=True, cwd=get_loc(Loc.ROOT)) as process:
+    process.wait()
+
+# Compile libserialport library
+print("\n===== Compile libserialport =====")
+(lib_ser_path, path_exists) = try_get_loc(Loc.LIBSERIALPORT)
+MS_BUILD = '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\MSBuild\\Current\\Bin\\msbuild"'
+CMD = f"{MS_BUILD} -m libserialport.sln /p:Configuration=Debug /p:Platform=x64"
+if not get_platform() == 'windows':
+    CMD = "./autogen.sh && ./configure && make && sudo make install"
+with Popen(CMD,  shell=True, cwd=lib_ser_path) as process:
     process.wait()
 
 # Compile Godot bindings

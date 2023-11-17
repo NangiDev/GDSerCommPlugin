@@ -1,12 +1,12 @@
 #include "register_types.h"
 
-#include "ser_comm.h"
-#include "custom_serial_port_event.h"
-
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/godot.hpp>
+
+#include "ser_comm.h"
+#include "serial_event.h"
 
 using namespace godot;
 
@@ -18,7 +18,7 @@ void initialize_sercomm_module(ModuleInitializationLevel p_level)
     }
 
     ClassDB::register_class<SerComm>();
-	ClassDB::register_class<CustomSerialPortEvent>();
+    ClassDB::register_class<SerialEvent>();
 }
 
 void uninitialize_sercomm_module(ModuleInitializationLevel p_level)

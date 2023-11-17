@@ -2,10 +2,11 @@
 #define SERCOMM_H
 
 #include <godot_cpp/classes/node.hpp>
-#include "custom_serial_port_event.h"
+#include "serial_event.h"
 
 namespace godot
 {
+	using namespace std;
 
 	class SerComm : public Node
 	{
@@ -55,16 +56,11 @@ namespace godot
 
 		void _process(double delta) override;
 
-		void send_serial_event(const Ref<CustomSerialPortEvent> &p_event)
-		{
-			String test = "Messag from inside: ";
-			String message = test + p_event->_to_string();
-			_err_print_error(__FUNCTION__, __FILE__, __LINE__, message);
-		};
+		void write_serial_event(const Ref<SerialEvent> &p_event);
 
 		void set_baud_rate(const int p_baud_rate);
 		int get_baud_rate() const;
 	};
 }
 
-#endif
+#endif // SERCOMM_H

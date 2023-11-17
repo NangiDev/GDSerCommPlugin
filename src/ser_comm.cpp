@@ -17,11 +17,34 @@ SerComm::SerComm()
 {
 	// Initialize any variables here.
 	baud_rate = BAUD_9600;
+
+	result = sp_get_port_by_name("COM10", &port); // Replace with the appropriate port name
+	if (result != SP_OK)
+	{
+		std::cerr << "Error getting port" << std::endl;
+		return;
+	}
+
+	result = sp_open(port, SP_MODE_READ_WRITE);
+	if (result != SP_OK)
+	{
+		std::cerr << "Error opening port" << std::endl;
+		sp_free_port(port);
+		return;
+	}
+
+	// Configure the port settings (baud rate, data bits, etc.)
+	sp_set_baudrate(port, 9600);		 // Set the baud rate
+	sp_set_bits(port, 8);				 // 8 data bits
+	sp_set_stopbits(port, 1);			 // 1 stop bit
+	sp_set_parity(port, SP_PARITY_NONE); // No parity
 }
 
 SerComm::~SerComm()
 {
 	// Add your cleanup here.
+	sp_close(port);
+	sp_free_port(port);
 }
 
 void SerComm::_process(double delta)

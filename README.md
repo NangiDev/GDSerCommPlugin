@@ -10,6 +10,7 @@ for more
 * [Godot 4.1 or above](https://github.com/godotengine/godot/releases/tag/4.1.3-stable)
 * [godot-cpp](https://github.com/godotengine/godot-cpp)
 * [libserialport](https://github.com/sigrokproject/libserialport)
+    * MSBuild v143 or later for Windows builds
 
 # Build system
 * [SCons](https://scons.org/)

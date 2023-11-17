@@ -14,7 +14,9 @@ env = SConscript("godot-cpp/SConstruct")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Tool('compilation_db')
-env.Append(CPPPATH=["src/"])
+env.Append(CPPPATH=["src/", "deps/libserialport/"])
+env.Append(LIBPATH=['deps/libserialport/x64/Debug/'])
+env.Append(LIBS=['libserialport'])
 env['CXXFLAGS'].remove('/std:c++17')
 env.Append(CXXFLAGS=['/std:c++20'])
 sources = Glob("src/*.cpp")
@@ -34,4 +36,4 @@ else:
 
 cc = env.CompilationDatabase('compile_commands.json')
 
-Default(cc,library)
+Default(cc, library)

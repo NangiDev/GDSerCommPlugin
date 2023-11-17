@@ -2,6 +2,7 @@
 #define SERCOMM_H
 
 #include <godot_cpp/classes/node.hpp>
+#include <libserialport.h>
 #include "serial_event.h"
 
 namespace godot
@@ -32,6 +33,8 @@ namespace godot
 
 	private:
 		int baud_rate;
+		sp_port *port;
+		sp_return result;
 
 	protected:
 		static void _bind_methods();

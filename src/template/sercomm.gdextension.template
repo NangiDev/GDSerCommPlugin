@@ -23,3 +23,9 @@ android.debug.arm64 = "res://bin/libsercomm.android.template_debug.arm64.so"
 android.release.arm64 = "res://bin/libsercomm.android.template_release.arm64.so"
 
 [dependencies]
+linux.debug.x86_64 = "res://bin/libserialport.so"
+linux.release.x86_64 = "res://bin/libserialport.so"
+linux.debug.arm64 = "res://bin/libserialport.so"
+linux.release.arm64 = "res://bin/libserialport.so"
+linux.debug.rv64 = "res://bin/libserialport.so"
+linux.release.rv64 = "res://bin/libserialport.so"

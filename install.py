@@ -68,7 +68,7 @@ print("\n===== Compile libserialport =====")
 MS_BUILD = '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\MSBuild\\Current\\Bin\\msbuild"'
 CMD = f"{MS_BUILD} -m libserialport.sln /p:Configuration=Debug /p:Platform=x64"
 if not get_platform() == 'windows':
-    CMD = "./autogen.sh && ./configure && make && sudo make install"
+    CMD = f"./autogen.sh && ./configure && make && sudo make install"
 with Popen(CMD,  shell=True, cwd=lib_ser_path) as process:
     process.wait()
 

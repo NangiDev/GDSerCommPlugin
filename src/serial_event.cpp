@@ -1,4 +1,6 @@
-#include <format>
+#define FMT_HEADER_ONLY
+
+#include "fmt/format.h"
 #include "serial_event.h"
 
 using namespace std;
@@ -25,6 +27,6 @@ SerialEvent::~SerialEvent()
 
 String SerialEvent::_to_string() const
 {
-	return format("SerialEvent - [ Message: {} ]", m_Message).c_str();
+	return fmt::format("SerialEvent - [ Message: {} ]", m_Message).c_str();
 }
 // Implement your custom properties and methods here

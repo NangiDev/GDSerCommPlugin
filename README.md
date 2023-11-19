@@ -11,6 +11,8 @@ for more
 * [godot-cpp](https://github.com/godotengine/godot-cpp)
 * [libserialport](https://github.com/sigrokproject/libserialport)
     * MSBuild v143 or later for Windows builds
+    * '```apt install autoconf libtool```' for Linux
+* [fmt](https://github.com/fmtlib/fmt) (./src/fmt/)
 
 # Build system
 * [SCons](https://scons.org/)

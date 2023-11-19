@@ -14,11 +14,17 @@ env = SConscript("godot-cpp/SConstruct")
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Tool('compilation_db')
-env.Append(CPPPATH=["src/", "deps/libserialport/"])
+env.Append(CPPPATH=['src/', 'deps/libserialport/'])
 env.Append(LIBPATH=['deps/libserialport/x64/Debug/'])
 env.Append(LIBS=['libserialport'])
-env['CXXFLAGS'].remove('/std:c++17')
-env.Append(CXXFLAGS=['/std:c++20'])
+
+# Define FMT_HEADER_ONLY
+env.Append(CPPDEFINES=['FMT_HEADER_ONLY'])
+
+# env['CXXFLAGS'].remove('/std:c++17')
+# env.Append(CXXFLAGS=['/std:c++20'])
+env['CXXFLAGS'].remove('-std=c++17')
+env.Append(CXXFLAGS=['-std=c++20'])
 sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":

@@ -4,6 +4,7 @@ Install script.
 
 from subprocess import Popen
 from os import mkdir
+import shutil
 from venv import create
 from shutil import copyfile
 from shared_lib import is_valid_python_version, try_get_loc, get_loc, Loc
@@ -65,10 +66,14 @@ with Popen(CMD, shell=True, cwd=get_loc(Loc.ROOT)) as process:
 # Compile libserialport library
 print("\n===== Compile libserialport =====")
 (lib_ser_path, path_exists) = try_get_loc(Loc.LIBSERIALPORT)
-MS_BUILD = '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\MSBuild\\Current\\Bin\\msbuild"'
-CMD = f"{MS_BUILD} -m libserialport.sln /p:Configuration=Debug /p:Platform=x64"
+
+
+MS_BUILD = shutil.which('msbuild')
+CMD = f"\"{MS_BUILD}\" -m libserialport.sln /p:Configuration=Debug /p:Platform=x64"
 if not get_platform() == 'windows':
     CMD = f"./autogen.sh && ./configure && make && sudo make install"
+
+print(CMD)
 with Popen(CMD,  shell=True, cwd=lib_ser_path) as process:
     process.wait()
 

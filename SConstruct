@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import platform
 
 env = SConscript("godot-cpp/SConstruct")
 
@@ -21,10 +22,13 @@ env.Append(LIBS=['libserialport'])
 # Define FMT_HEADER_ONLY
 env.Append(CPPDEFINES=['FMT_HEADER_ONLY'])
 
-# env['CXXFLAGS'].remove('/std:c++17')
-# env.Append(CXXFLAGS=['/std:c++20'])
-env['CXXFLAGS'].remove('-std=c++17')
-env.Append(CXXFLAGS=['-std=c++20'])
+if platform.system() == 'Windows':
+    env['CXXFLAGS'].remove('/std:c++17')
+    env.Append(CXXFLAGS=['/std:c++20'])
+else:
+    env['CXXFLAGS'].remove('-std=c++17')
+    env.Append(CXXFLAGS=['-std=c++20'])
+
 sources = Glob("src/*.cpp")
 
 if env["platform"] == "macos":

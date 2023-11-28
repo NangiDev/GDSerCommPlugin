@@ -3,7 +3,7 @@
 
 #include <godot_cpp/classes/node.hpp>
 #include <libserialport.h>
-#include "serial_event.h"
+#include "variant_helper.h"
 
 namespace godot
 {
@@ -35,23 +35,18 @@ namespace godot
 		int baud_rate;
 		sp_port *port;
 		sp_return result;
+		int _port;
+		bool is_port_open;
+		std::vector<std::string> _ports{};
+		bool toggle_to_refresh;
+
+		bool open_port();
+		void close_port();
+		void open_serial();
+		void read_serial_message();
 
 	protected:
 		static void _bind_methods();
-		static String baudRateToHintString()
-		{
-			String hint_string = "";
-			const int baud_rates[] = {110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 128000, 256000};
-			for (int i = 0; i < sizeof(baud_rates) / sizeof(baud_rates[0]); ++i)
-			{
-				if (!hint_string.is_empty())
-				{
-					hint_string += ", ";
-				}
-				hint_string += String::num_int64(baud_rates[i]) + ":" + String::num_int64(baud_rates[i]);
-			}
-			return hint_string;
-		};
 
 	public:
 		SerComm();
@@ -59,10 +54,16 @@ namespace godot
 
 		void _process(double delta) override;
 
-		void write_serial_event(const Ref<SerialEvent> &p_event);
+		void write_serial_message(const String &p_message);
 
-		void set_baud_rate(const int p_baud_rate);
-		int get_baud_rate() const;
+		void set_toggle_to_refresh(const bool p_is_toggled);
+		bool get_toggle_to_refresh();
+
+		void refresh_ports();
+
+		void _get_property_list(List<PropertyInfo> *r_list) const;
+		bool _get(const StringName &p_name, Variant &r_value) const;
+		bool _set(const StringName &p_name, const Variant &p_value);
 	};
 }
 

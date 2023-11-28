@@ -6,7 +6,6 @@
 #include <godot_cpp/godot.hpp>
 
 #include "ser_comm.h"
-#include "serial_event.h"
 
 using namespace godot;
 
@@ -18,7 +17,6 @@ void initialize_sercomm_module(ModuleInitializationLevel p_level)
     }
 
     ClassDB::register_class<SerComm>();
-    ClassDB::register_class<SerialEvent>();
 }
 
 void uninitialize_sercomm_module(ModuleInitializationLevel p_level)

@@ -17,6 +17,7 @@ for more
 # Build system
 * [SCons](https://scons.org/)
 * [Python 3.8 or above](https://www.python.org/downloads/)
+* Python virtual environment
 * [Git](https://git-scm.com/)
 
 ## Compilation Database and/or CMake
@@ -35,36 +36,28 @@ make
     deps - Dependencies, like libserialport. Will be created on install\
     godot-cpp - Godot bindings. Will be created on install\
 
-# Installation
-### Windows
+# Full Build
+This will build everything form scratch
 ```
-python Install.py
-```
-
-### Ubuntu
-```
-apt install python3
-apt install python3.10-venv
-python Install.py
-```
-### OSX
-```
-python Install.py
+python -m venv ./pvenv
+pip install -r requirements.txt
+python install.py
 ```
 
-# Build
-### Windows
+# Quick Build
+This will only build the GDSercomm part. Requires at least on Full Build before working
 ```
-python Build.py
+python -m venv ./pvenv
+pip install -r requirements.txt
+python build.py
 ```
 
-### Ubuntu
+# Output
+After a completed build all files you need will be in ./demo/bin directory.
+Except the libserialport library. It will be inside the ./deps/libserialport directory.
 ```
-python Build.py
-```
-### OSX
-```
-python Build.py
+Windows = .\deps\libserialport\x64\Debug\libserialport.dll
+Linux = libserialport.so
 ```
 
 # Usage
@@ -74,6 +67,6 @@ python Build.py
 4. script your logic
 ![Screenshot of basic setup](assets/setup.png)
 
-By toggle the radio button the extension will search for available prots and refresh the port dropdown list.
+By toggle the radio button the extension will search for available ports and refresh the port dropdown list.
 
 Create a SerComm node for each port you want to read or write to.

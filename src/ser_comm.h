@@ -34,16 +34,9 @@ namespace godot
 	private:
 		int baud_rate;
 		sp_port *port;
-		sp_return result;
-		int _port;
-		bool is_port_open;
+		int _port_enum;
 		std::vector<std::string> _ports{};
 		bool toggle_to_refresh;
-
-		bool open_port();
-		void close_port();
-		void open_serial();
-		void read_serial_message();
 
 	protected:
 		static void _bind_methods();
@@ -54,7 +47,14 @@ namespace godot
 
 		void _process(double delta) override;
 
-		void write_serial_message(const String &p_message);
+		godot::Array sercomm_list_ports();
+		bool sercomm_open();
+
+		void sercomm_close();
+		void sercomm_flush();
+
+		void sercomm_write(const String &p_message);
+		String sercomm_read();
 
 		void set_toggle_to_refresh(const bool p_is_toggled);
 		bool get_toggle_to_refresh();

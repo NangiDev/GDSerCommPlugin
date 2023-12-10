@@ -1,7 +1,7 @@
 import serial
 
 # Replace '/dev/pts/Y' with the actual path of your serial port
-ser = serial.Serial('COM4', baudrate=9600, timeout=1)
+ser = serial.Serial('COM3', baudrate=9600, timeout=1)
 
 try:
     while True:

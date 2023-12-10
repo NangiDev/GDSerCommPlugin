@@ -6,25 +6,54 @@ using namespace godot;
 
 void SerComm::_bind_methods()
 {
-	ClassDB::bind_method(D_METHOD("write_serial_message", "p_message"), &SerComm::write_serial_message);
-	ADD_SIGNAL(MethodInfo("read_serial_message", PropertyInfo(Variant::STRING, "message")));
+	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
+	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
+	ClassDB::bind_method(D_METHOD("close_serial"), &SerComm::sercomm_close);
+	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
+	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
+	ADD_SIGNAL(MethodInfo("read_serial", PropertyInfo(Variant::STRING, "message")));
 }
 
 SerComm::SerComm()
 {
 	baud_rate = BAUD_9600;
 	toggle_to_refresh = false;
-	is_port_open = false;
 	std::string port_name = "No port found!";
 	refresh_ports();
-
-	//_err_print_error(__FUNCTION__, __FILE__, __LINE__, message);
 }
 
 SerComm::~SerComm()
 {
 	// Add your cleanup here.
-	close_port();
+	sercomm_close();
+}
+
+godot::Array SerComm::SerComm::sercomm_list_ports()
+{
+	struct sp_port **port_list;
+	sp_return error = sp_list_ports(&port_list);
+
+	if (error != SP_OK)
+	{
+		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
+		sp_free_port_list(port_list);
+		return {};
+	}
+
+	godot::TypedArray<String> res_names = {};
+	for (sp_port **ptr = port_list; *ptr; ++ptr)
+	{
+		const char *l_port_name = sp_get_port_name(*ptr);
+		godot::String s = l_port_name;
+		res_names.push_back(s);
+	}
+
+	sp_free_port_list(port_list);
+	return res_names;
+}
+
+void godot::SerComm::sercomm_flush()
+{
 }
 
 void SerComm::_process(double delta)
@@ -35,44 +64,26 @@ void SerComm::_process(double delta)
 		notify_property_list_changed();
 	}
 
-	if (Engine::get_singleton()->is_editor_hint())
-		return;
+	// if (Engine::get_singleton()->is_editor_hint())
+	// 	return;
 
-	open_port();
-	read_serial_message();
+	// open_port();
+	// sercomm_read();
 }
 
-bool SerComm::open_port()
+void SerComm::sercomm_close()
 {
-	if (!is_port_open)
-	{
-		open_serial();
-		is_port_open = true;
-		return true;
-	}
-	return false; // Port is already open
+	sp_close(port);
+	sp_free_port(port);
 }
 
-void SerComm::close_port()
+bool SerComm::sercomm_open()
 {
-	if (is_port_open)
-	{
-		sp_close(port);
-		sp_free_port(port);
-		is_port_open = false;
-	}
-}
-
-void SerComm::open_serial()
-{
-	if (is_port_open)
-		return;
-
-	result = sp_get_port_by_name(_ports[_port].c_str(), &port);
+	sp_return result = sp_get_port_by_name(_ports[_port_enum].c_str(), &port);
 	if (result != SP_OK)
 	{
 		std::cerr << "Error getting port" << std::endl;
-		return;
+		return false;
 	}
 
 	result = sp_open(port, SP_MODE_READ_WRITE);
@@ -80,7 +91,7 @@ void SerComm::open_serial()
 	{
 		std::cerr << "Error opening port" << std::endl;
 		sp_free_port(port);
-		return;
+		return false;
 	}
 
 	std::cout << "Success opening port!" << std::endl;
@@ -88,20 +99,18 @@ void SerComm::open_serial()
 	sp_set_bits(port, 8);
 	sp_set_stopbits(port, 1);
 	sp_set_parity(port, SP_PARITY_NONE);
+	return true;
 }
 
-void SerComm::read_serial_message()
+String SerComm::sercomm_read()
 {
-	if (!is_port_open)
-		return;
-
 	char read_buffer[1024];
-	result = sp_nonblocking_read(port, read_buffer, sizeof(read_buffer) - 1);
+	sp_return result = sp_nonblocking_read(port, read_buffer, sizeof(read_buffer) - 1);
 
 	if (result < 0)
 	{
 		std::cerr << "Error reading data from port" << std::endl;
-		return;
+		return "";
 	}
 
 	read_buffer[result] = '\0';
@@ -109,27 +118,25 @@ void SerComm::read_serial_message()
 
 	if (data.length() > 0)
 	{
-		std::cout << "Reading input: " << read_buffer << std::endl;
-		emit_signal("read_serial_message", read_buffer);
+		// std::cout << "Reading input: " << read_buffer << std::endl;
+		emit_signal("read_serial_message", data);
+		return data;
 	}
+
+	return "";
 }
 
-void SerComm::write_serial_message(const String &p_message)
+void SerComm::sercomm_write(const String &p_message)
 {
-	if (!is_port_open)
-		return;
-
 	const char *utf8_data = p_message.utf8().get_data();
 
-	result = sp_nonblocking_write(port, utf8_data, std::strlen(utf8_data));
+	sp_return result = sp_nonblocking_write(port, utf8_data, std::strlen(utf8_data));
 	if (result < 0)
 	{
 		std::cerr << "Error writing data to port" << std::endl;
 	}
 
-	std::cout << "Writing output: " << utf8_data << std::endl;
-
-	sp_drain(port);
+	// std::cout << "Writing output: " << utf8_data << std::endl;
 };
 
 void SerComm::set_toggle_to_refresh(const bool p_is_toggled)
@@ -177,7 +184,7 @@ bool SerComm::_get(const StringName &p_name, Variant &r_value) const
 {
 	if (p_name == StringName("port"))
 	{
-		r_value = _port;
+		r_value = _port_enum;
 		return true;
 	}
 	else if (p_name == StringName("baud_rate"))
@@ -198,7 +205,7 @@ bool SerComm::_set(const StringName &p_name, const Variant &p_value)
 {
 	if (p_name == StringName("port"))
 	{
-		_port = p_value;
+		_port_enum = p_value;
 		return true;
 	}
 	else if (p_name == StringName("baud_rate"))

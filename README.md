@@ -9,10 +9,10 @@ for more
 # Dependencies
 * [Godot 4.1 or above](https://github.com/godotengine/godot/releases/tag/4.1.3-stable)
 * [godot-cpp](https://github.com/godotengine/godot-cpp)
-* [libserialport](https://github.com/sigrokproject/libserialport)
+* [libserialport](https://github.com/sigrokproject/libserialport) (LGPL-3.0 license)
     * MSBuild v143 or later for Windows builds
     * '```apt install autoconf libtool```' for Linux
-* [fmt](https://github.com/fmtlib/fmt) (./src/fmt/)
+* [fmt](https://github.com/fmtlib/fmt) (./src/fmt/) (MIT license)
 
 # Build system
 * [SCons](https://scons.org/)

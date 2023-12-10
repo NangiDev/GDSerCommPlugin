@@ -66,3 +66,14 @@ python Build.py
 ```
 python Build.py
 ```
+
+# Usage
+1. Create a SerComm node in your scene.
+2. Select baudrate and port number.
+3. Create a script on any other node in scene
+4. script your logic
+![Screenshot of basic setup](assets/setup.png)
+
+By toggle the radio button the extension will search for available prots and refresh the port dropdown list.
+
+Create a SerComm node for each port you want to read or write to.

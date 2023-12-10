@@ -1,9 +1,29 @@
+# Dependencies
+godot-cpp
+deps
 
-# Godot-specific ignores
-.import/
-export.cfg
-export_presets.cfg
-Screenshot.png.import
+# scons
+*.dblite
+compile_commands.json
 
-# Mono-specific ignores
-.mono/
+# binaries
+*.obj
+*.os
+
+# Demo
+demo
+
+# Cmake
+CMakeLists.txt
+build
+
+# Jetbrains
+.idea
+
+# VS/VSCode
+.vs
+.vscode
+
+# Python venv stuff
+pvenv/
+__pycache__/

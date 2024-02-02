@@ -1,5 +1,3 @@
-# This branch does not work yet!
-
 # SerCommPlugin
 A Godot 4.1+ plugin to read/write Arduino serial input.\
 Read

@@ -14,7 +14,7 @@ for more
 
 # Build system
 * [SCons](https://scons.org/)
-* [Python 3.8 or above](https://www.python.org/downloads/)
+* [Python 3.10 or above](https://www.python.org/downloads/)
 * Python virtual environment
 * [Git](https://git-scm.com/)
 
@@ -38,6 +38,12 @@ make
 This will build everything form scratch
 ```
 python -m venv ./pvenv
+
+// Activate pvenv for Windows
+pvenv\Scripts\activate
+// Activate pvenv for Unix/MacOS
+source pvenv/bin/activate
+
 pip install -r requirements.txt
 python install.py
 ```
@@ -46,6 +52,12 @@ python install.py
 This will only build the GDSercomm part. Requires at least on Full Build before working
 ```
 python -m venv ./pvenv
+
+// Activate pvenv for Windows
+pvenv\Scripts\activate
+// Activate pvenv for Unix/MacOS
+source pvenv/bin/activate
+
 pip install -r requirements.txt
 python build.py
 ```

@@ -6,6 +6,7 @@ using namespace godot;
 
 void SerComm::_bind_methods()
 {
+	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);
 	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
 	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
 	ClassDB::bind_method(D_METHOD("close_serial"), &SerComm::sercomm_close);

@@ -13,10 +13,6 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
 
-	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
-	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "port"), "set_port", "get_port");
-
 	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
 	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
@@ -25,7 +21,7 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()), "set_baud_rate", "get_baud_rate");
-	ADD_SIGNAL(MethodInfo("read_serial", PropertyInfo(Variant::STRING, "message")));
+	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 }
 
 void SerComm::set_port(const int id) {
@@ -91,8 +87,11 @@ void SerComm::_process(double delta)
 
 void SerComm::sercomm_close()
 {
-	sp_close(port);
-	sp_free_port(port);
+	if (opened) {
+		sp_close(port);
+		sp_free_port(port);
+	}
+	opened = false;
 }
 
 bool SerComm::sercomm_open()
@@ -111,6 +110,8 @@ bool SerComm::sercomm_open()
 		sp_free_port(port);
 		return false;
 	}
+
+	opened = true;
 
 	std::cout << "Success opening port!" << std::endl;
 	sp_set_baudrate(port, baud_rate);
@@ -137,7 +138,7 @@ String SerComm::sercomm_read()
 	if (data.length() > 0)
 	{
 		// std::cout << "Reading input: " << read_buffer << std::endl;
-		emit_signal("read_serial_message", data);
+		emit_signal("on_message", data);
 		return data;
 	}
 
@@ -193,9 +194,7 @@ void SerComm::refresh_ports()
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
 {
-	r_list->push_back(PropertyInfo(Variant::BOOL, "toggle_to_refresh"));
 	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, VariantHelper::_ports_to_hint_string(_ports)));
-	r_list->push_back(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()));
 }
 
 bool SerComm::_get(const StringName &p_name, Variant &r_value) const
@@ -203,16 +202,6 @@ bool SerComm::_get(const StringName &p_name, Variant &r_value) const
 	if (p_name == StringName("port"))
 	{
 		r_value = get_port();
-		return true;
-	}
-	else if (p_name == StringName("baud_rate"))
-	{
-		r_value = get_baud_rate();
-		return true;
-	}
-	else if (p_name == StringName("toggle_to_refresh"))
-	{
-		r_value = get_toggle_to_refresh();
 		return true;
 	}
 
@@ -224,16 +213,6 @@ bool SerComm::_set(const StringName &p_name, const Variant &p_value)
 	if (p_name == StringName("port"))
 	{
 		set_port(p_value);
-		return true;
-	}
-	else if (p_name == StringName("baud_rate"))
-	{
-		set_baud_rate(p_value);
-		return true;
-	}
-	else if (p_name == StringName("toggle_to_refresh"))
-	{
-		set_toggle_to_refresh(p_value);
 		return true;
 	}
 

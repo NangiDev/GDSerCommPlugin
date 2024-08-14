@@ -18,7 +18,7 @@ void SerComm::_bind_methods()
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "port"), "set_port", "get_port");
 
 	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
-	ClassDB::bind_method(D_METHOD("set_toggle_refresh", "t"), &SerComm::set_toggle_to_refresh);
+	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
 
 	

@@ -46,6 +46,12 @@ namespace godot
 		~SerComm();
 
 		void _process(double delta) override;
+		
+		void set_port(const int p);
+		int get_port() const;
+
+		void set_baud_rate(const int b);
+		int get_baud_rate() const;
 
 		godot::Array sercomm_list_ports();
 		bool sercomm_open();
@@ -57,7 +63,7 @@ namespace godot
 		String sercomm_read();
 
 		void set_toggle_to_refresh(const bool p_is_toggled);
-		bool get_toggle_to_refresh();
+		bool get_toggle_to_refresh() const;
 
 		void refresh_ports();
 

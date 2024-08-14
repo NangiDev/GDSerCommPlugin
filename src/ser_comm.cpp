@@ -20,6 +20,7 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
 
+	ClassDB::bind_method(D_METHOD("get_open"), &SerComm::get_open);
 	
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
@@ -41,6 +42,10 @@ void SerComm::set_baud_rate(const int b) {
 
 int SerComm::get_baud_rate() const {
 	return baud_rate;
+}
+
+bool SerComm::get_open() const {
+	return opened;
 }
 
 SerComm::SerComm()

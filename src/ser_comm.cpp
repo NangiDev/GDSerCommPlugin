@@ -13,8 +13,17 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
 
+	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
+	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "port"), "set_port", "get_port");
+
+	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
+	ClassDB::bind_method(D_METHOD("set_toggle_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
+
+	
+	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
+	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()), "set_baud_rate", "get_baud_rate");
 	ADD_SIGNAL(MethodInfo("read_serial", PropertyInfo(Variant::STRING, "message")));
 }

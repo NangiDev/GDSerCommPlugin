@@ -35,7 +35,7 @@ def get_platform():
 _THREADCOUNT = "16"
 _TARGET = "template_release"
 _TARGET = "template_debug"
-_scons_cmd = f"{get_loc(Loc.SCONS)} platform={get_platform()} target={_TARGET} -j{_THREADCOUNT}"
+_scons_cmd = f"\"{get_loc(Loc.SCONS)}\" platform={get_platform()} target={_TARGET} -j{_THREADCOUNT}"
 
 
 def scons_compile(working_dir, custom_api_file_path=None, message="Compile plugin"):

@@ -60,25 +60,13 @@ SerComm::~SerComm()
 
 godot::Array SerComm::SerComm::sercomm_list_ports()
 {
-	struct sp_port **port_list;
-	sp_return error = sp_list_ports(&port_list);
-
-	if (error != SP_OK)
-	{
-		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
-		sp_free_port_list(port_list);
-		return {};
-	}
-
 	godot::TypedArray<String> res_names = {};
-	for (sp_port **ptr = port_list; *ptr; ++ptr)
+	for (auto port : _ports)
 	{
-		const char *l_port_name = sp_get_port_name(*ptr);
-		godot::String s = l_port_name;
+		godot::String s(port.c_str());
 		res_names.push_back(s);
 	}
 
-	sp_free_port_list(port_list);
 	return res_names;
 }
 

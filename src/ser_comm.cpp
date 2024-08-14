@@ -13,6 +13,9 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
 
+	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
+	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
+
 	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
 	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");

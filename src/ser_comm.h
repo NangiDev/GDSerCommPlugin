@@ -55,6 +55,8 @@ namespace godot
 		void set_baud_rate(const int b);
 		int get_baud_rate() const;
 
+		bool get_open() const;
+
 		godot::Array sercomm_list_ports();
 		bool sercomm_open();
 

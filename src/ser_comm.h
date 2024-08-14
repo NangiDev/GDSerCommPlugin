@@ -38,6 +38,8 @@ namespace godot
 		std::vector<std::string> _ports{};
 		bool toggle_to_refresh;
 
+		bool opened = false;
+
 	protected:
 		static void _bind_methods();
 

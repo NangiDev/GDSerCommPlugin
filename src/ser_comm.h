@@ -37,8 +37,6 @@ namespace godot
 		int _port_enum;
 		std::vector<std::string> _ports{};
 		godot::String port_enum_str;
-		
-		bool toggle_to_refresh;
 
 		bool opened = false;
 
@@ -67,8 +65,6 @@ namespace godot
 
 		void sercomm_write(const String &p_message);
 		String sercomm_read();
-
-		void set_toggle_to_refresh(const bool p_is_toggled);
 
 		void refresh_ports();
 

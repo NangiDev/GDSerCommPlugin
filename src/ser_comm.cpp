@@ -21,9 +21,6 @@ void SerComm::_bind_methods()
 
 	ClassDB::bind_method(D_METHOD("get_open"), &SerComm::get_open);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_open", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY), "", "get_open");
-
-	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "");
 	
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
@@ -54,7 +51,6 @@ bool SerComm::get_open() const {
 SerComm::SerComm()
 {
 	baud_rate = BAUD_9600;
-	toggle_to_refresh = false;
 	std::string port_name = "No port found!";
 	refresh_ports();
 }
@@ -83,12 +79,6 @@ void godot::SerComm::sercomm_flush()
 
 void SerComm::_process(double delta)
 {
-	if (toggle_to_refresh)
-	{
-		refresh_ports();
-		notify_property_list_changed();
-	}
-
 	// if (Engine::get_singleton()->is_editor_hint())
 	// 	return;
 
@@ -169,11 +159,6 @@ void SerComm::sercomm_write(const String &p_message)
 	// std::cout << "Writing output: " << utf8_data << std::endl;
 };
 
-void SerComm::set_toggle_to_refresh(const bool p_is_toggled)
-{
-	toggle_to_refresh = p_is_toggled;
-}
-
 void SerComm::refresh_ports()
 {
 	_ports.clear();
@@ -184,7 +169,6 @@ void SerComm::refresh_ports()
 	{
 		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
 		sp_free_port_list(ports);
-		toggle_to_refresh = false;
 		return;
 	}
 
@@ -199,12 +183,12 @@ void SerComm::refresh_ports()
 	}
 
 	sp_free_port_list(ports);
-	toggle_to_refresh = false;
 }
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
 {
 	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, port_enum_str, PROPERTY_USAGE_EDITOR));
+	r_list->push_back(PropertyInfo(Variant::BOOL, "toggle_to_refresh", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 }
 
 bool SerComm::_get(const StringName &p_name, Variant &r_value) const
@@ -212,6 +196,9 @@ bool SerComm::_get(const StringName &p_name, Variant &r_value) const
 	if (p_name == StringName("port"))
 	{
 		r_value = get_port();
+		return true;
+	} else if (p_name == StringName("toggle_to_refresh")) {
+		r_value = false;
 		return true;
 	}
 
@@ -223,6 +210,10 @@ bool SerComm::_set(const StringName &p_name, const Variant &p_value)
 	if (p_name == StringName("port"))
 	{
 		set_port(p_value);
+		return true;
+	} else if (p_name == StringName("port")) {
+		refresh_ports();
+		notify_property_list_changed();
 		return true;
 	}
 

@@ -4,8 +4,6 @@
 
 using namespace godot;
 
-std::string test("");
-
 void SerComm::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);

@@ -19,12 +19,11 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, "", PROPERTY_USAGE_STORAGE), "set_port", "get_port");
 
-	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
-	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
-
 	ClassDB::bind_method(D_METHOD("get_open"), &SerComm::get_open);
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_open", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_READ_ONLY), "", "get_open");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_open", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY), "", "get_open");
+
+	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "");
 	
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
@@ -175,11 +174,6 @@ void SerComm::set_toggle_to_refresh(const bool p_is_toggled)
 	toggle_to_refresh = p_is_toggled;
 }
 
-bool SerComm::get_toggle_to_refresh() const
-{
-	return toggle_to_refresh;
-}
-
 void SerComm::refresh_ports()
 {
 	_ports.clear();
@@ -199,6 +193,10 @@ void SerComm::refresh_ports()
 		const char *l_port_name = sp_get_port_name(*ptr);
 		_ports.push_back(l_port_name);
 	}
+	
+	if (Engine::get_singleton()->is_editor_hint()) {
+		port_enum_str = VariantHelper::_ports_to_hint_string(_ports);
+	}
 
 	sp_free_port_list(ports);
 	toggle_to_refresh = false;
@@ -206,7 +204,7 @@ void SerComm::refresh_ports()
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
 {
-	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, VariantHelper::_ports_to_hint_string(_ports), PROPERTY_USAGE_EDITOR));
+	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, port_enum_str, PROPERTY_USAGE_EDITOR));
 }
 
 bool SerComm::_get(const StringName &p_name, Variant &r_value) const

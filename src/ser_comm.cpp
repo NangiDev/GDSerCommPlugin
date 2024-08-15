@@ -6,18 +6,49 @@ using namespace godot;
 
 void SerComm::_bind_methods()
 {
+	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);
 	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
 	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
 	ClassDB::bind_method(D_METHOD("close_serial"), &SerComm::sercomm_close);
 	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
-	ADD_SIGNAL(MethodInfo("read_serial", PropertyInfo(Variant::STRING, "message")));
+
+	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
+	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, "", PROPERTY_USAGE_STORAGE), "set_port", "get_port");
+
+	ClassDB::bind_method(D_METHOD("get_open"), &SerComm::get_open);
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_open", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY), "", "get_open");
+	
+	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
+	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()), "set_baud_rate", "get_baud_rate");
+	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
+}
+
+void SerComm::set_port(const int id) {
+	_port_enum = id; 
+}
+
+int SerComm::get_port() const {
+	return _port_enum;
+}
+
+void SerComm::set_baud_rate(const int b) {
+	baud_rate = b;
+}
+
+int SerComm::get_baud_rate() const {
+	return baud_rate;
+}
+
+bool SerComm::get_open() const {
+	return opened;
 }
 
 SerComm::SerComm()
 {
 	baud_rate = BAUD_9600;
-	toggle_to_refresh = false;
 	std::string port_name = "No port found!";
 	refresh_ports();
 }
@@ -30,25 +61,13 @@ SerComm::~SerComm()
 
 godot::Array SerComm::SerComm::sercomm_list_ports()
 {
-	struct sp_port **port_list;
-	sp_return error = sp_list_ports(&port_list);
-
-	if (error != SP_OK)
-	{
-		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
-		sp_free_port_list(port_list);
-		return {};
-	}
-
 	godot::TypedArray<String> res_names = {};
-	for (sp_port **ptr = port_list; *ptr; ++ptr)
+	for (auto port : _ports)
 	{
-		const char *l_port_name = sp_get_port_name(*ptr);
-		godot::String s = l_port_name;
+		godot::String s(port.c_str());
 		res_names.push_back(s);
 	}
 
-	sp_free_port_list(port_list);
 	return res_names;
 }
 
@@ -58,12 +77,6 @@ void godot::SerComm::sercomm_flush()
 
 void SerComm::_process(double delta)
 {
-	if (toggle_to_refresh)
-	{
-		refresh_ports();
-		notify_property_list_changed();
-	}
-
 	// if (Engine::get_singleton()->is_editor_hint())
 	// 	return;
 
@@ -73,8 +86,11 @@ void SerComm::_process(double delta)
 
 void SerComm::sercomm_close()
 {
-	sp_close(port);
-	sp_free_port(port);
+	if (opened) {
+		sp_close(port);
+		sp_free_port(port);
+	}
+	opened = false;
 }
 
 bool SerComm::sercomm_open()
@@ -93,6 +109,8 @@ bool SerComm::sercomm_open()
 		sp_free_port(port);
 		return false;
 	}
+
+	opened = true;
 
 	std::cout << "Success opening port!" << std::endl;
 	sp_set_baudrate(port, baud_rate);
@@ -119,7 +137,7 @@ String SerComm::sercomm_read()
 	if (data.length() > 0)
 	{
 		// std::cout << "Reading input: " << read_buffer << std::endl;
-		emit_signal("read_serial_message", data);
+		emit_signal("on_message", data);
 		return data;
 	}
 
@@ -139,16 +157,6 @@ void SerComm::sercomm_write(const String &p_message)
 	// std::cout << "Writing output: " << utf8_data << std::endl;
 };
 
-void SerComm::set_toggle_to_refresh(const bool p_is_toggled)
-{
-	toggle_to_refresh = p_is_toggled;
-}
-
-bool SerComm::get_toggle_to_refresh()
-{
-	return toggle_to_refresh;
-}
-
 void SerComm::refresh_ports()
 {
 	_ports.clear();
@@ -159,7 +167,6 @@ void SerComm::refresh_ports()
 	{
 		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
 		sp_free_port_list(ports);
-		toggle_to_refresh = false;
 		return;
 	}
 
@@ -168,33 +175,28 @@ void SerComm::refresh_ports()
 		const char *l_port_name = sp_get_port_name(*ptr);
 		_ports.push_back(l_port_name);
 	}
+	
+	if (Engine::get_singleton()->is_editor_hint()) {
+		port_enum_str = VariantHelper::_ports_to_hint_string(_ports);
+	}
 
 	sp_free_port_list(ports);
-	toggle_to_refresh = false;
 }
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
 {
-	r_list->push_back(PropertyInfo(Variant::BOOL, "toggle_to_refresh"));
-	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, VariantHelper::_ports_to_hint_string(_ports)));
-	r_list->push_back(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()));
+	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, port_enum_str, PROPERTY_USAGE_EDITOR));
+	r_list->push_back(PropertyInfo(Variant::BOOL, "toggle_to_refresh", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
 }
 
 bool SerComm::_get(const StringName &p_name, Variant &r_value) const
 {
 	if (p_name == StringName("port"))
 	{
-		r_value = _port_enum;
+		r_value = get_port();
 		return true;
-	}
-	else if (p_name == StringName("baud_rate"))
-	{
-		r_value = baud_rate;
-		return true;
-	}
-	else if (p_name == StringName("toggle_to_refresh"))
-	{
-		r_value = toggle_to_refresh;
+	} else if (p_name == StringName("toggle_to_refresh")) {
+		r_value = false;
 		return true;
 	}
 
@@ -205,17 +207,11 @@ bool SerComm::_set(const StringName &p_name, const Variant &p_value)
 {
 	if (p_name == StringName("port"))
 	{
-		_port_enum = p_value;
+		set_port(p_value);
 		return true;
-	}
-	else if (p_name == StringName("baud_rate"))
-	{
-		baud_rate = p_value;
-		return true;
-	}
-	else if (p_name == StringName("toggle_to_refresh"))
-	{
-		toggle_to_refresh = p_value;
+	} else if (p_name == StringName("toggle_to_refresh")) {
+		refresh_ports();
+		notify_property_list_changed();
 		return true;
 	}
 

@@ -36,7 +36,9 @@ namespace godot
 		sp_port *port;
 		int _port_enum;
 		std::vector<std::string> _ports{};
-		bool toggle_to_refresh;
+		godot::String port_enum_str;
+
+		bool opened = false;
 
 	protected:
 		static void _bind_methods();
@@ -46,6 +48,14 @@ namespace godot
 		~SerComm();
 
 		void _process(double delta) override;
+		
+		void set_port(const int p);
+		int get_port() const;
+
+		void set_baud_rate(const int b);
+		int get_baud_rate() const;
+
+		bool get_open() const;
 
 		godot::Array sercomm_list_ports();
 		bool sercomm_open();
@@ -55,9 +65,6 @@ namespace godot
 
 		void sercomm_write(const String &p_message);
 		String sercomm_read();
-
-		void set_toggle_to_refresh(const bool p_is_toggled);
-		bool get_toggle_to_refresh();
 
 		void refresh_ports();
 

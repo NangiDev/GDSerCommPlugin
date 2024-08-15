@@ -211,7 +211,7 @@ bool SerComm::_set(const StringName &p_name, const Variant &p_value)
 	{
 		set_port(p_value);
 		return true;
-	} else if (p_name == StringName("port")) {
+	} else if (p_name == StringName("toggle_to_refresh")) {
 		refresh_ports();
 		notify_property_list_changed();
 		return true;

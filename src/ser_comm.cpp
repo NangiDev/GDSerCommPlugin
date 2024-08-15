@@ -4,6 +4,8 @@
 
 using namespace godot;
 
+std::string test("");
+
 void SerComm::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);
@@ -15,12 +17,14 @@ void SerComm::_bind_methods()
 
 	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
 	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, "", PROPERTY_USAGE_STORAGE), "set_port", "get_port");
 
 	ClassDB::bind_method(D_METHOD("get_toggle_to_refresh"), &SerComm::get_toggle_to_refresh);
 	ClassDB::bind_method(D_METHOD("set_toggle_to_refresh", "t"), &SerComm::set_toggle_to_refresh);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "toggle_to_refresh"), "set_toggle_to_refresh", "get_toggle_to_refresh");
 
 	ClassDB::bind_method(D_METHOD("get_open"), &SerComm::get_open);
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_open", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_READ_ONLY), "", "get_open");
 	
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
@@ -202,7 +206,7 @@ void SerComm::refresh_ports()
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
 {
-	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, VariantHelper::_ports_to_hint_string(_ports)));
+	r_list->push_back(PropertyInfo(Variant::INT, "port", PROPERTY_HINT_ENUM, VariantHelper::_ports_to_hint_string(_ports), PROPERTY_USAGE_EDITOR));
 }
 
 bool SerComm::_get(const StringName &p_name, Variant &r_value) const

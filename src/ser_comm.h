@@ -48,6 +48,9 @@ namespace godot
 		~SerComm();
 
 		void _process(double delta) override;
+
+		int sercomm_get_waiting();
+		void sercomm_read(const int num_bytes);
 		
 		void set_port(const int p);
 		int get_port() const;
@@ -64,7 +67,6 @@ namespace godot
 		void sercomm_flush();
 
 		void sercomm_write(const String &p_message);
-		String sercomm_read();
 
 		void refresh_ports();
 

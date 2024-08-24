@@ -14,6 +14,7 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("waiting_input_bytes"), &SerComm::sercomm_get_waiting);
 	ClassDB::bind_method(D_METHOD("read_serial", "num_bytes"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
+	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 
 	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
 	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
@@ -25,7 +26,6 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()), "set_baud_rate", "get_baud_rate");
-	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 }
 
 void SerComm::set_port(const int id) {

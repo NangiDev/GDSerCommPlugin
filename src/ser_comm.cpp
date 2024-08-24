@@ -103,7 +103,7 @@ void SerComm::sercomm_close()
 bool SerComm::sercomm_open()
 {
 	if (opened) {
-		return;
+		return true;
 	}
 	
 	sp_return result = sp_get_port_by_name(_ports[_port_enum].c_str(), &port);

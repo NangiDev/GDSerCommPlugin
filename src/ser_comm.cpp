@@ -131,7 +131,7 @@ bool SerComm::sercomm_open()
 	return true;
 }
 
-void SerComm::sercomm_read(const int num_bytes)
+String SerComm::sercomm_read(const int num_bytes)
 {
 	std::vector<char> read_buffer(num_bytes);
 	sp_return result = sp_nonblocking_read(port, read_buffer.data(), num_bytes);
@@ -149,6 +149,8 @@ void SerComm::sercomm_read(const int num_bytes)
 	{
 		emit_signal("on_message", data);
 	}
+
+	return data;
 }
 
 void SerComm::sercomm_write(const String &p_message)

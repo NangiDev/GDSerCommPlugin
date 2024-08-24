@@ -50,7 +50,7 @@ namespace godot
 		void _process(double delta) override;
 
 		int sercomm_get_waiting();
-		void sercomm_read(const int num_bytes);
+		String sercomm_read(const int num_bytes);
 		
 		void set_port(const int p);
 		int get_port() const;

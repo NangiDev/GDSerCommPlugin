@@ -139,7 +139,7 @@ String SerComm::sercomm_read(const int num_bytes)
 	if (result < 0)
 	{
 		std::cerr << "Error reading data from port" << std::endl;
-		return;
+		return "";
 	}
 
 	read_buffer[result] = '\0';

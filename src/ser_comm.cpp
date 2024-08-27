@@ -10,8 +10,11 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
 	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
 	ClassDB::bind_method(D_METHOD("close_serial"), &SerComm::sercomm_close);
-	ClassDB::bind_method(D_METHOD("read_serial"), &SerComm::sercomm_read);
+
+	ClassDB::bind_method(D_METHOD("waiting_input_bytes"), &SerComm::sercomm_get_waiting);
+	ClassDB::bind_method(D_METHOD("read_serial", "num_bytes"), &SerComm::sercomm_read);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
+	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 
 	ClassDB::bind_method(D_METHOD("get_port"), &SerComm::get_port);
 	ClassDB::bind_method(D_METHOD("set_port", "id"), &SerComm::set_port);
@@ -23,7 +26,6 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("get_baud_rate"), &SerComm::get_baud_rate);
 	ClassDB::bind_method(D_METHOD("set_baud_rate", "b"), &SerComm::set_baud_rate);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "baud_rate", PROPERTY_HINT_ENUM, VariantHelper::_baud_rate_to_hint_string()), "set_baud_rate", "get_baud_rate");
-	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 }
 
 void SerComm::set_port(const int id) {
@@ -75,13 +77,18 @@ void godot::SerComm::sercomm_flush()
 {
 }
 
+int SerComm::sercomm_get_waiting() {
+	return sp_input_waiting(port);
+}
+
 void SerComm::_process(double delta)
 {
-	// if (Engine::get_singleton()->is_editor_hint())
-	// 	return;
-
-	// open_port();
-	// sercomm_read();
+	if (opened) {
+		int bytes = sercomm_get_waiting();
+		if (bytes > 0) {
+			sercomm_read(bytes);
+		} 
+	}
 }
 
 void SerComm::sercomm_close()
@@ -95,6 +102,10 @@ void SerComm::sercomm_close()
 
 bool SerComm::sercomm_open()
 {
+	if (opened) {
+		return true;
+	}
+	
 	sp_return result = sp_get_port_by_name(_ports[_port_enum].c_str(), &port);
 	if (result != SP_OK)
 	{
@@ -120,10 +131,10 @@ bool SerComm::sercomm_open()
 	return true;
 }
 
-String SerComm::sercomm_read()
+String SerComm::sercomm_read(const int num_bytes)
 {
-	char read_buffer[1024];
-	sp_return result = sp_nonblocking_read(port, read_buffer, sizeof(read_buffer) - 1);
+	std::vector<char> read_buffer(num_bytes);
+	sp_return result = sp_nonblocking_read(port, read_buffer.data(), num_bytes);
 
 	if (result < 0)
 	{
@@ -132,16 +143,14 @@ String SerComm::sercomm_read()
 	}
 
 	read_buffer[result] = '\0';
-	String data = String::utf8(read_buffer);
+	String data = String::utf8(read_buffer.data());
 
 	if (data.length() > 0)
 	{
-		// std::cout << "Reading input: " << read_buffer << std::endl;
 		emit_signal("on_message", data);
-		return data;
 	}
 
-	return "";
+	return data;
 }
 
 void SerComm::sercomm_write(const String &p_message)

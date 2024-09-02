@@ -51,6 +51,7 @@ namespace godot
 
 		int sercomm_get_waiting();
 		String sercomm_read(const int num_bytes);
+		void sercomm_drain();
 		
 		void set_port(const int p);
 		int get_port() const;

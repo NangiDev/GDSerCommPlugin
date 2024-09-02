@@ -134,11 +134,13 @@ bool SerComm::sercomm_open()
 
 String SerComm::sercomm_read(const int num_bytes)
 {
-	if (num_bytes > std::vector<char>::max_size()) {
-		std::cerr << "Attempted to read " << num_bytes << " bytes, which is more than the maximum length supported (" << std::vector<char>::max_size() << " bytes)" << std::endl;
+	std::vector<char> read_buffer;
+	if (num_bytes > read_buffer.max_size()) {
+		std::cerr << "Attempted to read " << num_bytes << " bytes, which is more than the maximum length supported (" << read_buffer.max_size() << " bytes)" << std::endl;
 		return "";
 	}
-	std::vector<char> read_buffer(num_bytes);
+	read_buffer = std::vector<char>(num_bytes);
+
 	sp_return result = sp_nonblocking_read(port, read_buffer.data(), num_bytes);
 
 	if (result < 0)

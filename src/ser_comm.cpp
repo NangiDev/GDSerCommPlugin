@@ -13,6 +13,7 @@ void SerComm::_bind_methods()
 
 	ClassDB::bind_method(D_METHOD("waiting_input_bytes"), &SerComm::sercomm_get_waiting);
 	ClassDB::bind_method(D_METHOD("read_serial", "num_bytes"), &SerComm::sercomm_read);
+	ClassDB::bind_method(D_METHOD("drain"), &SerComm::sercomm_drain);
 	ClassDB::bind_method(D_METHOD("write_serial", "p_message"), &SerComm::sercomm_write);
 	ADD_SIGNAL(MethodInfo("on_message", PropertyInfo(Variant::STRING, "message")));
 
@@ -133,7 +134,13 @@ bool SerComm::sercomm_open()
 
 String SerComm::sercomm_read(const int num_bytes)
 {
-	std::vector<char> read_buffer(num_bytes);
+	std::vector<char> read_buffer;
+	if (num_bytes > read_buffer.max_size()) {
+		std::cerr << "Attempted to read " << num_bytes << " bytes, which is more than the maximum length supported (" << read_buffer.max_size() << " bytes)" << std::endl;
+		return "";
+	}
+	read_buffer = std::vector<char>(num_bytes);
+
 	sp_return result = sp_nonblocking_read(port, read_buffer.data(), num_bytes);
 
 	if (result < 0)
@@ -151,6 +158,13 @@ String SerComm::sercomm_read(const int num_bytes)
 	}
 
 	return data;
+}
+
+void SerComm::sercomm_drain() {
+	int result = sp_drain(port);
+	if (result < 0) {
+		std::cerr << "Error draining port: " << sp_last_error_code() << " - " << sp_last_error_message() << std::endl;
+	}
 }
 
 void SerComm::sercomm_write(const String &p_message)

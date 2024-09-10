@@ -9,6 +9,7 @@ void SerComm::_bind_methods()
 	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);
 	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
 	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
+	ClassDB::bind_method(D_METHOD("open_serial_with_port"), &SerComm::sercomm_open_specific_serial_port);
 	ClassDB::bind_method(D_METHOD("close_serial"), &SerComm::sercomm_close);
 
 	ClassDB::bind_method(D_METHOD("waiting_input_bytes"), &SerComm::sercomm_get_waiting);
@@ -125,6 +126,37 @@ bool SerComm::sercomm_open()
 	opened = true;
 
 	std::cout << "Success opening port!" << std::endl;
+	sp_set_baudrate(port, baud_rate);
+	sp_set_bits(port, 8);
+	sp_set_stopbits(port, 1);
+	sp_set_parity(port, SP_PARITY_NONE);
+	return true;
+}
+
+bool SerComm::sercomm_open_specific_serial_port(const String& port_name)
+{
+	if (opened) {
+		return true;
+	}
+
+	std::string port_name_std = port_name.utf8().get_data();
+
+	sp_return result = sp_get_port_by_name(port_name_std.c_str(), &port);
+	if (result != SP_OK) {
+		std::cerr << "Error getting port" << std::endl;
+		return false;
+	}
+
+	result = sp_open(port, SP_MODE_READ_WRITE);
+	if (result != SP_OK) {
+		std::cerr << "Error opening port" << std::endl;
+		sp_free_port(port);
+		return false;
+	}
+
+	opened = true;
+
+	std::cout << "Success opening port: " << port_name_std << std::endl;
 	sp_set_baudrate(port, baud_rate);
 	sp_set_bits(port, 8);
 	sp_set_stopbits(port, 1);

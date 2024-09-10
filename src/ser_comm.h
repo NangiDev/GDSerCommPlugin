@@ -63,6 +63,7 @@ namespace godot
 
 		godot::Array sercomm_list_ports();
 		bool sercomm_open();
+		bool sercomm_open_specific_serial_port(const String& port_name);
 
 		void sercomm_close();
 		void sercomm_flush();

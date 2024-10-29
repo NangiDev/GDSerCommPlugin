@@ -4,6 +4,10 @@ Read
 [GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/gdextension/index.html)
 for more
 
+## Want MQTT instead of Serial?
+If serial input is not what you're looking for maybe a plugin for MQTT would suite you better?  
+[godot-mqtt repo](https://github.com/goatchurchprime/godot-mqtt?tab=readme-ov-file) made by [Julian Todd](https://github.com/goatchurchprime)
+
 # Dependencies
 * [Godot 4.1 or above](https://github.com/godotengine/godot/releases/tag/4.1.3-stable)
 * [godot-cpp](https://github.com/godotengine/godot-cpp)

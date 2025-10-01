@@ -47,6 +47,7 @@ namespace godot
 		SerComm();
 		~SerComm();
 
+		void _ready() override;
 		void _process(double delta) override;
 
 		int sercomm_get_waiting();
@@ -71,6 +72,7 @@ namespace godot
 		void sercomm_write(const String &p_message);
 
 		void refresh_ports();
+		void initialize_ports();
 
 		void _get_property_list(List<PropertyInfo> *r_list) const;
 		bool _get(const StringName &p_name, Variant &r_value) const;

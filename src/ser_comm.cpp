@@ -1,12 +1,14 @@
 #include "ser_comm.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 
 void SerComm::_bind_methods()
 {
 	ClassDB::bind_method(D_METHOD("refresh_ports"), &SerComm::refresh_ports);
+	ClassDB::bind_method(D_METHOD("initialize_ports"), &SerComm::initialize_ports);
 	ClassDB::bind_method(D_METHOD("list_serial_ports"), &SerComm::sercomm_list_ports);
 	ClassDB::bind_method(D_METHOD("open_serial"), &SerComm::sercomm_open);
 	ClassDB::bind_method(D_METHOD("open_serial_with_port"), &SerComm::sercomm_open_specific_serial_port);
@@ -53,8 +55,8 @@ bool SerComm::get_open() const {
 SerComm::SerComm()
 {
 	baud_rate = BAUD_9600;
-	std::string port_name = "No port found!";
-	refresh_ports();
+	_port_enum = 0;
+	port = nullptr;
 }
 
 SerComm::~SerComm()
@@ -80,7 +82,21 @@ void godot::SerComm::sercomm_flush()
 }
 
 int SerComm::sercomm_get_waiting() {
+	if (!opened || !port) {
+		return 0;
+	}
 	return sp_input_waiting(port);
+}
+
+void SerComm::_ready()
+{
+	// Refresh ports when node enters the scene
+	refresh_ports();
+
+	// Auto-open the selected port if ports are available
+	if (_ports.size() > 0 && _port_enum >= 0 && _port_enum < _ports.size()) {
+		sercomm_open();
+	}
 }
 
 void SerComm::_process(double delta)
@@ -89,7 +105,7 @@ void SerComm::_process(double delta)
 		int bytes = sercomm_get_waiting();
 		if (bytes > 0) {
 			sercomm_read(bytes);
-		} 
+		}
 	}
 }
 
@@ -107,29 +123,41 @@ bool SerComm::sercomm_open()
 	if (opened) {
 		return true;
 	}
-	
+
+	if (_ports.size() == 0) {
+		UtilityFunctions::print("No ports available! Call initialize_ports() or refresh_ports() first.");
+		return false;
+	}
+
+	if (_port_enum < 0 || _port_enum >= _ports.size()) {
+		UtilityFunctions::print("Invalid port index: ", _port_enum, " (available: ", _ports.size(), ")");
+		return false;
+	}
+
 	sp_return result = sp_get_port_by_name(_ports[_port_enum].c_str(), &port);
 	if (result != SP_OK)
 	{
-		std::cerr << "Error getting port" << std::endl;
+		UtilityFunctions::print("Error getting port '", _ports[_port_enum].c_str(), "': ", sp_last_error_code(), " - ", sp_last_error_message());
 		return false;
 	}
 
 	result = sp_open(port, SP_MODE_READ_WRITE);
 	if (result != SP_OK)
 	{
-		std::cerr << "Error opening port" << std::endl;
+		UtilityFunctions::print("Error opening port '", _ports[_port_enum].c_str(), "': ", sp_last_error_code(), " - ", sp_last_error_message());
 		sp_free_port(port);
 		return false;
 	}
 
 	opened = true;
 
-	std::cout << "Success opening port!" << std::endl;
+	// Configure port settings
 	sp_set_baudrate(port, baud_rate);
 	sp_set_bits(port, 8);
 	sp_set_stopbits(port, 1);
 	sp_set_parity(port, SP_PARITY_NONE);
+
+	UtilityFunctions::print("Successfully opened port: ", _ports[_port_enum].c_str(), " (", baud_rate, " baud)");
 	return true;
 }
 
@@ -143,45 +171,54 @@ bool SerComm::sercomm_open_specific_serial_port(const String& port_name)
 
 	sp_return result = sp_get_port_by_name(port_name_std.c_str(), &port);
 	if (result != SP_OK) {
-		std::cerr << "Error getting port" << std::endl;
+		UtilityFunctions::print("Error getting port '", port_name_std.c_str(), "': ", sp_last_error_code(), " - ", sp_last_error_message());
 		return false;
 	}
 
 	result = sp_open(port, SP_MODE_READ_WRITE);
 	if (result != SP_OK) {
-		std::cerr << "Error opening port" << std::endl;
+		UtilityFunctions::print("Error opening port '", port_name_std.c_str(), "': ", sp_last_error_code(), " - ", sp_last_error_message());
 		sp_free_port(port);
 		return false;
 	}
 
 	opened = true;
 
-	std::cout << "Success opening port: " << port_name_std << std::endl;
+	// Configure port settings
 	sp_set_baudrate(port, baud_rate);
 	sp_set_bits(port, 8);
 	sp_set_stopbits(port, 1);
 	sp_set_parity(port, SP_PARITY_NONE);
+
+	UtilityFunctions::print("Successfully opened port: ", port_name_std.c_str(), " (", baud_rate, " baud)");
 	return true;
 }
 
 String SerComm::sercomm_read(const int num_bytes)
 {
-	std::vector<char> read_buffer;
-	if (num_bytes > read_buffer.max_size()) {
-		std::cerr << "Attempted to read " << num_bytes << " bytes, which is more than the maximum length supported (" << read_buffer.max_size() << " bytes)" << std::endl;
+	if (!opened || !port) {
+		UtilityFunctions::print("Port not opened for reading");
 		return "";
 	}
-	read_buffer = std::vector<char>(num_bytes);
+
+	if (num_bytes <= 0) {
+		UtilityFunctions::print("Invalid read size: ", num_bytes);
+		return "";
+	}
+
+	std::vector<char> read_buffer(num_bytes + 1);
 
 	sp_return result = sp_nonblocking_read(port, read_buffer.data(), num_bytes);
 
 	if (result < 0)
 	{
-		std::cerr << "Error reading data from port" << std::endl;
+		UtilityFunctions::print("Error reading data from port: ", sp_last_error_code(), " - ", sp_last_error_message());
 		return "";
 	}
 
-	read_buffer[result] = '\0';
+	if (result > 0) {
+		read_buffer[result] = '\0';
+	}
 	String data = String::utf8(read_buffer.data());
 
 	if (data.length() > 0)
@@ -193,23 +230,30 @@ String SerComm::sercomm_read(const int num_bytes)
 }
 
 void SerComm::sercomm_drain() {
+	if (!opened || !port) {
+		UtilityFunctions::print("Port not opened for draining");
+		return;
+	}
 	int result = sp_drain(port);
 	if (result < 0) {
-		std::cerr << "Error draining port: " << sp_last_error_code() << " - " << sp_last_error_message() << std::endl;
+		UtilityFunctions::print("Error draining port: ", sp_last_error_code(), " - ", sp_last_error_message());
 	}
 }
 
 void SerComm::sercomm_write(const String &p_message)
 {
+	if (!opened || !port) {
+		UtilityFunctions::print("Port not opened for writing");
+		return;
+	}
+
 	const char *utf8_data = p_message.utf8().get_data();
 
 	sp_return result = sp_nonblocking_write(port, utf8_data, std::strlen(utf8_data));
 	if (result < 0)
 	{
-		std::cerr << "Error writing data to port" << std::endl;
+		UtilityFunctions::print("Error writing data to port: ", sp_last_error_code(), " - ", sp_last_error_message());
 	}
-
-	// std::cout << "Writing output: " << utf8_data << std::endl;
 };
 
 void SerComm::refresh_ports()
@@ -220,22 +264,69 @@ void SerComm::refresh_ports()
 
 	if (error != SP_OK)
 	{
-		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listening ports");
-		sp_free_port_list(ports);
+		UtilityFunctions::print("Error listing ports: ", sp_last_error_code(), " - ", sp_last_error_message());
+		_err_print_error(__FUNCTION__, __FILE__, __LINE__, "Error listing ports");
+		if (ports) {
+			sp_free_port_list(ports);
+		}
 		return;
 	}
+
+	UtilityFunctions::print("Found serial ports:");
+	int port_count = 0;
 
 	for (sp_port **ptr = ports; *ptr; ++ptr)
 	{
 		const char *l_port_name = sp_get_port_name(*ptr);
-		_ports.push_back(l_port_name);
+		if (l_port_name) {
+			_ports.push_back(l_port_name);
+
+			// Get additional port information
+			const char *description = sp_get_port_description(*ptr);
+			enum sp_transport transport = sp_get_port_transport(*ptr);
+
+			String port_info = String("  Port ") + String::num(port_count) + String(": ") + String(l_port_name);
+			if (description) {
+				port_info += String(" (") + String(description) + String(")");
+			}
+			port_info += String(" - Transport: ");
+			switch (transport) {
+				case SP_TRANSPORT_NATIVE: port_info += "NATIVE"; break;
+				case SP_TRANSPORT_USB: port_info += "USB"; break;
+				case SP_TRANSPORT_BLUETOOTH: port_info += "BLUETOOTH"; break;
+				default: port_info += "UNKNOWN"; break;
+			}
+			UtilityFunctions::print(port_info);
+			port_count++;
+		}
 	}
-	
+
+	// Add tty0tty virtual serial ports (not auto-detected by libserialport). For development on Linux
+	for (int i = 0; i < 8; ++i) {
+		std::string tnt_path = "/dev/tnt" + std::to_string(i);
+		FILE *file = fopen(tnt_path.c_str(), "r+");
+		if (file) {
+			fclose(file);
+			_ports.push_back(tnt_path);
+			UtilityFunctions::print("  Port ", port_count, ": ", tnt_path.c_str(), " (Virtual - TTY0TTY)");
+			port_count++;
+		}
+	}
+
+	if (port_count == 0) {
+		UtilityFunctions::print("  No serial ports found");
+	}
+
 	if (Engine::get_singleton()->is_editor_hint()) {
 		port_enum_str = VariantHelper::_ports_to_hint_string(_ports);
 	}
 
 	sp_free_port_list(ports);
+}
+
+void SerComm::initialize_ports()
+{
+	refresh_ports();
 }
 
 void SerComm::_get_property_list(List<PropertyInfo> *r_list) const
